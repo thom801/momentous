@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Momentous : A Moment.js based datepicker for bootstrap." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Momentous</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/thom801/momentous">View on GitHub</a>
+
+          <h1 id="project_title">Momentous</h1>
+          <h2 id="project_tagline">A Moment.js based datepicker for bootstrap.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/thom801/momentous/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/thom801/momentous/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Momentous</h1>
+
+<p>A datepicker for <a href="http://twitter.github.io/bootstrap/">bootstrap</a> built with <a href="http://momentjs.com/">Moment.js</a></p>
+
+<h3>Basic Usage</h3>
+
+<p>Include <code>momentous.js</code> and <code>momentous.css</code> then create a placeholder.</p>
+
+<div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"placeholder"</span><span class="nt">&gt;&lt;/div&gt;</span>
+</pre></div>
+
+<p>Create a momentous instance by passing the id of your placeholder.</p>
+
+<div class="highlight"><pre><span class="nx">momentous</span> <span class="o">=</span> <span class="nx">Momentous</span><span class="p">(</span><span class="s1">'placeholder'</span><span class="p">);</span>
+</pre></div>
+
+<h3>Initialize with options</h3>
+
+<div class="highlight"><pre><span class="nx">options</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">dateFormat</span><span class="o">:</span> <span class="s1">'MM-DD-YYYY'</span><span class="p">,</span> <span class="c1">// Any valid moment.js display format.</span>
+  <span class="nx">date</span><span class="o">:</span> <span class="s1">'04-21-2013'</span><span class="p">,</span> <span class="c1">// Must match date format</span>
+  <span class="nx">weekStart</span><span class="o">:</span> <span class="mi">1</span> <span class="c1">// Sunday: 0, Monday: 1</span>
+<span class="p">};</span>
+
+<span class="nx">momentous</span> <span class="o">=</span> <span class="nx">Momentous</span><span class="p">(</span><span class="s1">'placeholder'</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+</pre></div>
+
+<h3>Events</h3>
+
+<div class="highlight"><pre><span class="nx">momentous</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'dateChange'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">momentous</span><span class="p">.</span><span class="nx">curDate</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Momentous maintained by <a href="https://github.com/thom801">thom801</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
