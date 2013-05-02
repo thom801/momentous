@@ -1,6 +1,3 @@
-body {
-  padding: 60px 0px;
-}
 .momentous-container {
   position: relative;
 }
@@ -28,14 +25,14 @@ body {
   margin: 6px;
   font-size: 14px;
 }
-.momentous-container .momentous-dropdown table tr.cal-nav {
+.momentous-container .momentous-dropdown table tr.days-nav {
   height: 30px;
 }
-.momentous-container .momentous-dropdown table tr.cal-nav th {
+.momentous-container .momentous-dropdown table tr.days-nav th {
   border-radius: 4px;
   cursor: pointer;
 }
-.momentous-container .momentous-dropdown table tr.cal-nav th.dir-button:hover {
+.momentous-container .momentous-dropdown table tr.days-nav th.dir-button:hover {
   background: #efefef;
 }
 .momentous-container .momentous-dropdown table th.dow {

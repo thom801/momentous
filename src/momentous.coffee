@@ -3,7 +3,7 @@ class Momentous
     @placeholder = $ "#" + placeholder
     @options     = options
     @dateFormat  = @options.dateFormat or 'DD-MM-YYYY'
-    @events      = _.extend {}, Backbone.Events
+    @events      = $ this
 
     @placeholder.html dropdownTemplate
 
@@ -13,8 +13,8 @@ class Momentous
     @calButton = @placeholder.find '.momentous-cal-button'
     @dropdown  = @placeholder.find '.momentous-dropdown'
 
-    @input.bind 'focus', @show
-    @calButton.bind 'click', @show
+    @input.bind 'click', @toggle
+    @calButton.bind 'click', @toggle
     @dropdown.find('.dir-button').bind 'click', @directionClickHandler
 
     @init()
@@ -29,7 +29,7 @@ class Momentous
     daysHeader = @dropdown.find '.dow-row'
 
     weekStart = moment().day(@weekStart)
-    _.times 7, (dow) =>
+    for dow in [0..6]
       curDay = moment(weekStart).add('days', dow)
       dayName = curDay.format('ddd').substring(0,2);
       daysHeader.append "<th class='dow'>#{dayName}</th>"
@@ -55,10 +55,10 @@ class Momentous
     daysContainer = @dropdown.find('tbody')
 
     calHTML = ""
-    _.times 6, (week) =>
+    [0..5].map (week) =>
       weekStart = moment(monthWeekStart).add('days', week * 7)
       daysHTML = ""
-      _.times 7, (dow) =>
+      [0..6].map (dow) =>
         curDay = moment weekStart.day(@weekStart + dow).format(@dateFormat), @dateFormat
         curDayDate = curDay.format @dateFormat
         classes = 'day'
@@ -92,15 +92,24 @@ class Momentous
     @events.trigger 'dateChange'
 
   show: =>
+    @visible = true
     @dropdown.stop().css({display: 'block'}).animate({
       opacity: 1
     }, 200)
 
   hide: =>
+    @visible = false
     @dropdown.stop().css({
       display: 'none'
       opacity: 0
     })
+
+  toggle: =>
+    if @visible then @hide() else @show()
+
+  moment: => moment @curDate
+
+  jsDate: => @curDate.toDate()
 
 window.Momentous = (placeholder, options={}) ->
   new Momentous placeholder, options

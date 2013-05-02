@@ -6,6 +6,12 @@
   Momentous = (function() {
 
     function Momentous(placeholder, options) {
+      this.jsDate = __bind(this.jsDate, this);
+
+      this.moment = __bind(this.moment, this);
+
+      this.toggle = __bind(this.toggle, this);
+
       this.hide = __bind(this.hide, this);
 
       this.show = __bind(this.show, this);
@@ -26,21 +32,20 @@
       this.placeholder = $("#" + placeholder);
       this.options = options;
       this.dateFormat = this.options.dateFormat || 'DD-MM-YYYY';
-      this.events = _.extend({}, Backbone.Events);
+      this.events = $(this);
       this.placeholder.html(dropdownTemplate);
       this.placeholder.addClass('momentous-container');
       this.input = this.placeholder.find('.momentous-input');
       this.calButton = this.placeholder.find('.momentous-cal-button');
       this.dropdown = this.placeholder.find('.momentous-dropdown');
-      this.input.bind('focus', this.show);
-      this.calButton.bind('click', this.show);
+      this.input.bind('click', this.toggle);
+      this.calButton.bind('click', this.toggle);
       this.dropdown.find('.dir-button').bind('click', this.directionClickHandler);
       this.init();
     }
 
     Momentous.prototype.init = function() {
-      var daysHeader, weekStart, _ref,
-        _this = this;
+      var curDay, dayName, daysHeader, dow, weekStart, _i, _ref;
       this.curDate = moment();
       this.weekStart = 1;
       if (this.options.date) {
@@ -51,12 +56,11 @@
       }
       daysHeader = this.dropdown.find('.dow-row');
       weekStart = moment().day(this.weekStart);
-      _.times(7, function(dow) {
-        var curDay, dayName;
+      for (dow = _i = 0; _i <= 6; dow = ++_i) {
         curDay = moment(weekStart).add('days', dow);
         dayName = curDay.format('ddd').substring(0, 2);
-        return daysHeader.append("<th class='dow'>" + dayName + "</th>");
-      });
+        daysHeader.append("<th class='dow'>" + dayName + "</th>");
+      }
       return this.update();
     };
 
@@ -80,11 +84,11 @@
       monthWeekStart = monthStart.day(this.weekStart);
       daysContainer = this.dropdown.find('tbody');
       calHTML = "";
-      _.times(6, function(week) {
+      [0, 1, 2, 3, 4, 5].map(function(week) {
         var daysHTML, weekHTML, weekStart;
         weekStart = moment(monthWeekStart).add('days', week * 7);
         daysHTML = "";
-        _.times(7, function(dow) {
+        [0, 1, 2, 3, 4, 5, 6].map(function(dow) {
           var classes, curDay, curDayDate;
           curDay = moment(weekStart.day(_this.weekStart + dow).format(_this.dateFormat), _this.dateFormat);
           curDayDate = curDay.format(_this.dateFormat);
@@ -132,6 +136,7 @@
     };
 
     Momentous.prototype.show = function() {
+      this.visible = true;
       return this.dropdown.stop().css({
         display: 'block'
       }).animate({
@@ -140,10 +145,27 @@
     };
 
     Momentous.prototype.hide = function() {
+      this.visible = false;
       return this.dropdown.stop().css({
         display: 'none',
         opacity: 0
       });
+    };
+
+    Momentous.prototype.toggle = function() {
+      if (this.visible) {
+        return this.hide();
+      } else {
+        return this.show();
+      }
+    };
+
+    Momentous.prototype.moment = function() {
+      return moment(this.curDate);
+    };
+
+    Momentous.prototype.jsDate = function() {
+      return this.curDate.toDate();
     };
 
     return Momentous;
