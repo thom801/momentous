@@ -1,10 +1,12 @@
 # Momentous
 A datepicker for bootstrap built with Moment.js
 
-### Initialization
+### Basic Usage
+Include `momentous.js` and `momentous.css` then create a placeholder.
 ```html
 <div id="placeholder"></div>
 ```
+Create a momentous instance by passing the id of your placeholder.
 ```javascript
 momentous = Momentous('placeholder');
 ```
