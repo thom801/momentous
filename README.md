@@ -1,5 +1,5 @@
 # Momentous
-A datepicker for bootstrap built with [Moment.js](http://momentjs.com/)
+A datepicker for [bootstrap](http://twitter.github.io/bootstrap/) built with [Moment.js](http://momentjs.com/)
 
 ### Basic Usage
 Include `momentous.js` and `momentous.css` then create a placeholder.
