@@ -1,5 +1,5 @@
 # Momentous
-A datepicker for bootstrap built with Moment.js
+A datepicker for bootstrap built with [Moment.js](http://momentjs.com/)
 
 ### Basic Usage
 Include `momentous.js` and `momentous.css` then create a placeholder.
@@ -14,8 +14,8 @@ momentous = Momentous('placeholder');
 ### Initialize with options
 ```javascript
 options = {
-  date: '09-01-2013',
-  dateFormat: 'MM-DD-YYYY'
+  dateFormat: 'MM-DD-YYYY', // Any valid moment.js display format.
+  date: '04-21-2013', // Must match date format
   weekStart: 1 // Sunday: 0, Monday: 1
 };
 
