@@ -1,0 +1,68 @@
+body {
+  padding: 60px 0px;
+}
+.momentous-container {
+  position: relative;
+}
+.momentous-container .momentous-input {
+  text-align: center;
+  padding: 14px 10px;
+  width: 210px;
+  font-size: 16px;
+}
+.momentous-container .momentous-cal-button {
+  padding: 6px 10px 7px;
+}
+.momentous-container .momentous-dropdown {
+  position: absolute;
+  top: 32px;
+  background: #fff;
+  display: block;
+  width: 240px;
+  border: solid 1px #ccc;
+  border-radius: 4px;
+  display: none;
+  user-select: none !important;
+}
+.momentous-container .momentous-dropdown table {
+  margin: 6px;
+  font-size: 14px;
+}
+.momentous-container .momentous-dropdown table tr.cal-nav {
+  height: 30px;
+}
+.momentous-container .momentous-dropdown table tr.cal-nav th {
+  border-radius: 4px;
+  cursor: pointer;
+}
+.momentous-container .momentous-dropdown table tr.cal-nav th.dir-button:hover {
+  background: #efefef;
+}
+.momentous-container .momentous-dropdown table th.dow {
+  cursor: default;
+  font-size: 12px;
+  width: 25px;
+  height: 26px;
+}
+.momentous-container .momentous-dropdown table td {
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  border: none;
+}
+.momentous-container .momentous-dropdown table td.day {
+  height: 0;
+  padding: 6px 0;
+}
+.momentous-container .momentous-dropdown table td:not(.active):hover {
+  background: #efefef;
+}
+.momentous-container .momentous-dropdown table td.active {
+  background: #222;
+  color: #fff;
+}
+.momentous-container .momentous-dropdown table td.lastMonth,
+.momentous-container .momentous-dropdown table td.nextMonth {
+  color: #bbb;
+}
