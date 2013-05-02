@@ -1,11 +1,10 @@
 # Momentous
-## A datepicker for bootstrap built with Moment.js
+A datepicker for bootstrap built with Moment.js
 
 ### Initialization
 ```html
 <div id="placeholder"></div>
 ```
-Javascript
 ```javascript
 momentous = Momentous('placeholder');
 ```
@@ -15,13 +14,13 @@ momentous = Momentous('placeholder');
 options = {
   date: '09-01-2013',
   dateFormat: 'MM-DD-YYYY'
-  weekStart: 1 // Monday
+  weekStart: 1 // Sunday: 0, Monday: 1
 };
 
 momentous = Momentous('placeholder', options);
 ```
 
-## Events
+### Events
 ```javascript
 momentous.events.on('dateChange', function(event) {
   console.log(momentous.curDate);
