@@ -25,8 +25,44 @@
 
       <hr>
 
-      <div class="row-fluid">
+      <div id="demo" class="row-fluid">
         <div id="placeholder"></div>
+      </div>
+
+      <hr>
+
+      <h3>Basic Usage</h3>
+      <p>Include <code>momentous.js</code> and <code>momentous.css</code> then create a placeholder.</p>
+      <pre>
+        <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"placeholder"</span><span class="nt">&gt;&lt;/div&gt;</span>
+      </pre>
+
+      <p>Create a momentous instance by passing the id of your placeholder.</p>
+      <div class="highlight">
+        <pre>
+          <span class="nx">momentous</span> <span class="o">=</span> <span class="nx">Momentous</span><span class="p">(</span><span class="s1">'placeholder'</span><span class="p">);</span>
+        </pre>
+      </div>
+
+      <h3>Initialize with options</h3>
+      <div class="highlight">
+        <pre>
+          <span class="nx">options</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="nx">dateFormat</span><span class="o">:</span> <span class="s1">'MM-DD-YYYY'</span><span class="p">,</span> <span class="c1">// Any valid moment.js display format.</span>
+          <span class="nx">date</span><span class="o">:</span> <span class="s1">'04-21-2013'</span><span class="p">,</span> <span class="c1">// Must match date format</span>
+          <span class="nx">weekStart</span><span class="o">:</span> <span class="mi">1</span> <span class="c1">// Sunday: 0, Monday: 1</span>
+          <span class="p">};</span>
+          <span class="nx">momentous</span> <span class="o">=</span> <span class="nx">Momentous</span><span class="p">(</span><span class="s1">'placeholder'</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+        </pre>
+      </div>
+
+      <h3>Events</h3>
+      <div class="highlight">
+        <pre>
+          <span class="nx">momentous</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'dateChange'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">momentous</span><span class="p">.</span><span class="nx">curDate</span><span class="p">);</span>
+          <span class="p">});</span>
+        </pre>
       </div>
 
       <hr>
