@@ -29,7 +29,7 @@
       this.update = __bind(this.update, this);
 
       this.init = __bind(this.init, this);
-      this.placeholder = $("#" + placeholder);
+      this.placeholder = placeholder;
       this.options = options;
       this.dateFormat = this.options.dateFormat || 'DD-MM-YYYY';
       this.events = $(this);

@@ -3,9 +3,9 @@
 }
 .momentous-container .momentous-input {
   text-align: center;
-  padding: 14px 10px;
   width: 210px;
   font-size: 16px;
+  height: 25px;
 }
 .momentous-container .momentous-cal-button {
   padding: 6px 10px 7px;

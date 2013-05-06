@@ -1,6 +1,6 @@
 class Momentous
   constructor: (placeholder, options) ->
-    @placeholder = $ "#" + placeholder
+    @placeholder = placeholder
     @options     = options
     @dateFormat  = @options.dateFormat or 'DD-MM-YYYY'
     @events      = $ this
