@@ -16,11 +16,12 @@
   <script src="../momentous.js"></script>
 
   <script type="text/javascript">
-    momentous = Momentous('placeholder');
+    placeholder = $('#placeholder');
+    momentous = Momentous(placeholder);
 
     momentous.events.bind('dateChange', function(event){
-      momentDate    = momentous.moment();
-      formattedDate = momentous.moment().format('dddd MMM D, YYYY');
+      momentDate    = momentous.date();
+      formattedDate = momentous.date().format('dddd MMM D, YYYY');
       jsDate        = momentous.jsDate();
 
       console.log('Date Changed:');

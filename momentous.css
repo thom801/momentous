@@ -3,12 +3,17 @@
 }
 .momentous-container .momentous-input {
   text-align: center;
-  width: 210px;
+  width: 205px;
   font-size: 16px;
-  height: 25px;
+  height: 34px;
+  padding: 0px;
+  margin: 0px;
+  font-weight: bold;
+  color: #222;
 }
 .momentous-container .momentous-cal-button {
-  padding: 6px 10px 7px;
+  height: 34px;
+  width: 40px;
 }
 .momentous-container .momentous-dropdown {
   position: absolute;
@@ -19,21 +24,39 @@
   border: solid 1px #ccc;
   border-radius: 4px;
   display: none;
-  user-select: none !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.momentous-container .momentous-dropdown .momentous-nav {
+  height: 20px;
+  padding: 8px 0px 8px 8px;
+}
+.momentous-container .momentous-dropdown .momentous-nav .view-button {
+  display: inline-block;
+  text-align: center;
+  width: 140px;
+}
+.momentous-container .momentous-dropdown .momentous-nav span {
+  height: 17px;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 16px;
+  font-weight: bold;
+}
+.momentous-container .momentous-dropdown .momentous-nav span:hover {
+  background: #efefef;
+}
+.momentous-container .momentous-dropdown th.cur-view {
+  text-align: center;
 }
 .momentous-container .momentous-dropdown table {
   margin: 6px;
   font-size: 14px;
-}
-.momentous-container .momentous-dropdown table tr.days-nav {
-  height: 30px;
-}
-.momentous-container .momentous-dropdown table tr.days-nav th {
-  border-radius: 4px;
-  cursor: pointer;
-}
-.momentous-container .momentous-dropdown table tr.days-nav th.dir-button:hover {
-  background: #efefef;
 }
 .momentous-container .momentous-dropdown table th.dow {
   cursor: default;
@@ -62,4 +85,20 @@
 .momentous-container .momentous-dropdown table td.lastMonth,
 .momentous-container .momentous-dropdown table td.nextMonth {
   color: #bbb;
+}
+.momentous-container .momentous-dropdown .months-view ul {
+  list-style: none;
+  padding: 14px 0 0 0px;
+  margin: 0px;
+}
+.momentous-container .momentous-dropdown .months-view ul li {
+  float: left;
+  padding: 18px 12px;
+  width: 26px;
+  border-radius: 4px;
+  margin: 0 0 8px 8px;
+  cursor: pointer;
+}
+.momentous-container .momentous-dropdown .months-view ul li:hover {
+  background: #efefef;
 }

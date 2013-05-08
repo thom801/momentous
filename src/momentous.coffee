@@ -1,58 +1,84 @@
 class Momentous
   constructor: (placeholder, options) ->
-    @placeholder = placeholder
-    @options     = options
-    @dateFormat  = @options.dateFormat or 'DD-MM-YYYY'
+    @placeholder = $ placeholder.html dropdownTemplate
     @events      = $ this
-
-    @placeholder.html dropdownTemplate
+    @options     = options
+    @dateFormat  = @options.dateFormat or 'MM-DD-YYYY'
+    @daysView    = @placeholder.find '.days-view'
+    @monthsView  = @placeholder.find '.months-view'
+    @curView     = @placeholder.find '.days-view'
+    @input       = @placeholder.find '.momentous-input'
+    @calButton   = @placeholder.find '.momentous-cal-button'
+    @dropdown    = @placeholder.find '.momentous-dropdown'
+    @viewButton  = @dropdown.find '.view-button'
 
     @placeholder.addClass 'momentous-container'
-
-    @input     = @placeholder.find '.momentous-input'
-    @calButton = @placeholder.find '.momentous-cal-button'
-    @dropdown  = @placeholder.find '.momentous-dropdown'
 
     @input.bind 'click', @toggle
     @calButton.bind 'click', @toggle
     @dropdown.find('.dir-button').bind 'click', @directionClickHandler
+    @viewButton.bind 'click', @viewClickHandler
 
     @init()
 
   init: =>
+    # defaults
     @curDate   = moment()
     @weekStart = 1 # Monday
+    @granularity = 'days'
 
     if @options.date then @curDate = moment(@options.date, @dateFormat)
     if @options.weekStart in [0,1] then @weekStart = @options.weekStart
+    if @options.granularity then @granularity = @options.granularity
+    #if @options.language then moment.lang @options.language
 
-    daysHeader = @dropdown.find '.dow-row'
+    @curView.show()
 
+    # days of week header
+    daysHeader = @daysView.find '.dow-row'
     weekStart = moment().day(@weekStart)
     for dow in [0..6]
       curDay = moment(weekStart).add('days', dow)
-      dayName = curDay.format('ddd').substring(0,2);
+      dayName = curDay.format('ddd').substring(0,2)
       daysHeader.append "<th class='dow'>#{dayName}</th>"
 
+    # months buttons
+    monthsContainer = @monthsView.find 'ul'
+    curMonth = moment().dayOfYear(1)
+    for month in [0..11]
+      monthName = curMonth.format 'MMM'
+      monthNum = curMonth.format 'M'
+      monthsContainer.append "<li class='month-button' data-date='#{monthNum}'>#{monthName}</li>"
+      curMonth.add 'months', 1
+
+    monthsContainer.find('.month-button').bind 'click', @monthClickHandler
+
+    @showDays()
     @update()
 
   update: =>
     @input.attr 'value', @curDate.format @dateFormat
+    nav = @dropdown.find '.momentous-nav'
 
-    @updateNav()
-    @updateCal()
+    if @curView == @daysView
+      navFormat = 'MMM YYYY'
+      @showDays()
+    if @curView == @monthsView
+      navFormat = 'YYYY'
+      @showMonths()
 
-  updateNav: =>
-    nav = @dropdown.find '.days-nav'
+    nav.find('.view-button').text @curDate.format navFormat
 
-    nav.find('.cur-view').text @curDate.format('MMM YYYY')
+  showDays: =>
+    @curView.hide()
+    @daysView.show()
+    @curView = @daysView
 
-  updateCal: =>
     month          = @curDate.month()
     monthStart     = moment(@curDate).date(0)
     monthWeekStart = monthStart.day(@weekStart)
 
-    daysContainer = @dropdown.find('tbody')
+    daysContainer = @daysView.find('tbody')
 
     calHTML = ""
     [0..5].map (week) =>
@@ -73,18 +99,41 @@ class Momentous
     daysContainer.html calHTML
     @dropdown.find('.day').bind 'click', @dayClickHandler
 
+  showMonths: =>
+    @curView.hide()
+    @monthsView.show()
+    @curView = @monthsView
+
   dayClickHandler: (event) =>
     target = $ event.currentTarget
     @setDate target.data 'date'
-
     @hide()
+
+  monthClickHandler: (event) =>
+    target = $ event.currentTarget
+    monthNum = target.data 'date'
+    newDate = moment(@curDate).month(monthNum - 1)
+    @showDays()
+    @setDate newDate
+
+  viewClickHandler: (event) =>
+    if @curView == @daysView
+      @showMonths()
+      @update()
 
   directionClickHandler: (event) =>
     target = $ event.currentTarget
+
+    if @curView == @daysView
+      span = 'months'
+
+    if @curView == @monthsView
+      span = 'years'
+
     if target.hasClass 'prev'
-      @setDate moment(@curDate).subtract('months', 1)
+      @setDate moment(@curDate).subtract(span, 1)
     if target.hasClass 'next'
-      @setDate moment(@curDate).add('months', 1)
+      @setDate moment(@curDate).add(span, 1)
 
   setDate: (date) =>
     @curDate = moment(date, @dateFormat)
@@ -107,7 +156,7 @@ class Momentous
   toggle: =>
     if @visible then @hide() else @show()
 
-  moment: => moment @curDate
+  date: => moment @curDate
 
   jsDate: => @curDate.toDate()
 
@@ -121,21 +170,27 @@ dropdownTemplate =  """
   </div>
   <div class='momentous-dropdown popover bottom'>
     <div class="arrow"></div>
-    <div class="days-group">
+    <div class="momentous-nav">
+      <span class="dir-button prev"><i class="icon-chevron-left"></i></span>
+      <span class="view-button"></span>
+      <span class="dir-button next"><i class="icon-chevron-right"></i></span>
+    </div>
+    <div class="days-view" style="display: none;">
       <table class="table-condensed">
         <thead>
-          <tr class="days-nav">
-            <th class="dir-button prev"><i class="icon-chevron-left"></i></th>
-            <th colspan="5" class="cur-view"></th>
-            <th class="dir-button next"><i class="icon-chevron-right"></i></th>
-          </tr>
           <tr class="dow-row"></tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
+    <div class="months-view" style="display: none;">
+      <ul></ul>
+    </div>
   </div>
 """
+
+log = (s) ->
+  console.log s
 
 
 

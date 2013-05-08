@@ -3,12 +3,17 @@
 
   .momentous-input
     text-align: center
-    width: 210px
+    width: 205px
     font-size: 16px
-    height: 25px
+    height: 34px
+    padding: 0px
+    margin: 0px
+    font-weight: bold
+    color: #222
 
   .momentous-cal-button
-    padding: 6px 10px 7px
+    height: 34px
+    width: 40px
 
   .momentous-dropdown
     position: absolute
@@ -19,22 +24,41 @@
     border: solid 1px #ccc
     border-radius: 4px
     display: none
-    user-select: none !important
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    .momentous-nav
+      height: 20px
+      padding: 8px 0px 8px 8px
+
+      .view-button
+        display: inline-block
+        text-align: center
+        width: 140px
+
+      span
+        height: 17px
+        padding: 8px
+        border-radius: 4px
+        cursor: pointer
+        line-height: 16px
+        font-weight: bold
+
+        &:hover
+          background: #efefef
+
+    th.cur-view
+      text-align: center
 
     table
       margin: 6px
       font-size: 14px
 
-      tr.days-nav
-        height: 30px
-
-        th
-          border-radius: 4px
-          cursor: pointer
-
-          &.dir-button:hover
-            background: #efefef
-
+      
       th.dow
         cursor: default
         font-size: 12px
@@ -62,3 +86,19 @@
         &.lastMonth, &.nextMonth
           color: #bbb
 
+    .months-view
+      ul
+        list-style: none
+        padding: 14px 0 0 0px
+        margin: 0px
+
+        li
+          float: left
+          padding: 18px 12px
+          width: 26px
+          border-radius: 4px
+          margin: 0 0 8px 8px
+          cursor: pointer
+
+          &:hover
+            background: #efefef
