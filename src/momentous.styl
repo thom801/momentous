@@ -57,7 +57,6 @@
     table
       margin: 6px
       font-size: 14px
-
       
       th.dow
         cursor: default
@@ -65,26 +64,55 @@
         width: 25px
         height: 26px
 
-      td
-        text-align: center
-        border-radius: 4px
-        cursor: pointer
-        overflow: hidden
-        border: none
+      tr
 
-        &.day
-          height: 0
-          padding: 6px 0
+        td
+          text-align: center
+          overflow: hidden
+          border: none
 
-        &:not(.active):hover
-          background: #efefef
+          &.day
+            height: 0
+            padding: 6px 0
+
+          &.lastMonth, &.nextMonth
+            color: #bbb
+
+      tr:not(.week)
+
+        td
+          text-align: center
+          border-radius: 4px
+          cursor: pointer
+          overflow: hidden
+          border: none
+
+          &:not(.active):hover
+            background: #efefef
+
+          &.active
+            background: #222
+            color: #fff
+
+      tr.week
+        border-radius: none
 
         &.active
           background: #222
           color: #fff
 
-        &.lastMonth, &.nextMonth
-          color: #bbb
+        &:not(.active):hover
+          background: #efefef
+          cursor: pointer
+
+        td
+          text-align: center
+
+        td:nth-child(1)
+          border-radius: 4px 0 0 4px
+
+        td:nth-child(7)
+          border-radius 0 4px 4px 0
 
     .months-view
       ul
@@ -100,5 +128,9 @@
           margin: 0 0 8px 8px
           cursor: pointer
 
-          &:hover
+          &.active
+            background: #222
+            color: #fff
+
+          &:not(.active):hover
             background: #efefef

@@ -24,6 +24,8 @@
 
       this.monthClickHandler = __bind(this.monthClickHandler, this);
 
+      this.weekClickHandler = __bind(this.weekClickHandler, this);
+
       this.dayClickHandler = __bind(this.dayClickHandler, this);
 
       this.showMonths = __bind(this.showMonths, this);
@@ -53,7 +55,7 @@
     }
 
     Momentous.prototype.init = function() {
-      var curDay, curMonth, dayName, daysHeader, dow, month, monthName, monthNum, monthsContainer, weekStart, _i, _j, _ref;
+      var curDay, dayName, daysHeader, dow, weekStart, _i, _ref;
       this.curDate = moment();
       this.weekStart = 1;
       this.granularity = 'days';
@@ -74,16 +76,17 @@
         dayName = curDay.format('ddd').substring(0, 2);
         daysHeader.append("<th class='dow'>" + dayName + "</th>");
       }
-      monthsContainer = this.monthsView.find('ul');
-      curMonth = moment().dayOfYear(1);
-      for (month = _j = 0; _j <= 11; month = ++_j) {
-        monthName = curMonth.format('MMM');
-        monthNum = curMonth.format('M');
-        monthsContainer.append("<li class='month-button' data-date='" + monthNum + "'>" + monthName + "</li>");
-        curMonth.add('months', 1);
+      if (this.granularity === 'days') {
+        this.showDays();
       }
-      monthsContainer.find('.month-button').bind('click', this.monthClickHandler);
-      this.showDays();
+      if (this.granularity === 'weeks') {
+        this.setDate(moment(this.curDate).day(1));
+        this.showDays();
+      }
+      if (this.granularity === 'months') {
+        this.setDate(moment(this.curDate).date(1));
+        this.showMonths();
+      }
       return this.update();
     };
 
@@ -114,9 +117,13 @@
       daysContainer = this.daysView.find('tbody');
       calHTML = "";
       [0, 1, 2, 3, 4, 5].map(function(week) {
-        var daysHTML, weekHTML, weekStart;
+        var daysHTML, weekClasses, weekHTML, weekStart;
         weekStart = moment(monthWeekStart).add('days', week * 7);
         daysHTML = "";
+        weekClasses = "";
+        if (_this.granularity === 'weeks') {
+          weekClasses = 'week';
+        }
         [0, 1, 2, 3, 4, 5, 6].map(function(dow) {
           var classes, curDay, curDayDate;
           curDay = moment(weekStart.day(_this.weekStart + dow).format(_this.dateFormat), _this.dateFormat);
@@ -130,20 +137,42 @@
           }
           if (curDay.format(_this.dateFormat) === _this.curDate.format(_this.dateFormat)) {
             classes += ' active';
+            weekClasses += ' active';
           }
           return daysHTML += "<td class='" + classes + "' data-date='" + curDayDate + "'>" + (curDay.date()) + "</td>";
         });
-        weekHTML = "<tr>" + daysHTML + "</tr>";
+        weekHTML = "<tr class='" + weekClasses + "'>" + daysHTML + "</tr>";
         return calHTML += weekHTML;
       });
       daysContainer.html(calHTML);
-      return this.dropdown.find('.day').bind('click', this.dayClickHandler);
+      if (this.granularity === 'days') {
+        this.dropdown.find('.day').bind('click', this.dayClickHandler);
+      }
+      if (this.granularity === 'weeks') {
+        return this.dropdown.find('.week').bind('click', this.weekClickHandler);
+      }
     };
 
     Momentous.prototype.showMonths = function() {
+      var curMonth, month, monthName, monthNum, monthsContainer, monthsHTML, _i;
       this.curView.hide();
       this.monthsView.show();
-      return this.curView = this.monthsView;
+      this.curView = this.monthsView;
+      monthsContainer = this.monthsView.find('ul');
+      monthsHTML = '';
+      curMonth = moment().dayOfYear(1);
+      for (month = _i = 0; _i <= 11; month = ++_i) {
+        monthName = curMonth.format('MMM');
+        monthNum = curMonth.format('M');
+        if (curMonth.month() === this.curDate.month()) {
+          monthsHTML += "<li class='month-button active' data-date='" + monthNum + "'>" + monthName + "</li>";
+        } else {
+          monthsHTML += "<li class='month-button' data-date='" + monthNum + "'>" + monthName + "</li>";
+        }
+        curMonth.add('months', 1);
+      }
+      monthsContainer.html(monthsHTML);
+      return monthsContainer.find('.month-button').bind('click', this.monthClickHandler);
     };
 
     Momentous.prototype.dayClickHandler = function(event) {
@@ -153,12 +182,25 @@
       return this.hide();
     };
 
+    Momentous.prototype.weekClickHandler = function(event) {
+      var target;
+      target = $(event.currentTarget);
+      this.setDate(target.find('td:first').data('date'));
+      return this.hide();
+    };
+
     Momentous.prototype.monthClickHandler = function(event) {
       var monthNum, newDate, target;
       target = $(event.currentTarget);
       monthNum = target.data('date');
       newDate = moment(this.curDate).month(monthNum - 1);
-      this.showDays();
+      if (this.granularity === 'days') {
+        this.showDays();
+      }
+      if (this.granularity === 'months') {
+        this.setDate(newDate.date(1));
+        this.hide();
+      }
       return this.setDate(newDate);
     };
 

@@ -64,27 +64,52 @@
   width: 25px;
   height: 26px;
 }
-.momentous-container .momentous-dropdown table td {
+.momentous-container .momentous-dropdown table tr td {
+  text-align: center;
+  overflow: hidden;
+  border: none;
+}
+.momentous-container .momentous-dropdown table tr td.day {
+  height: 0;
+  padding: 6px 0;
+}
+.momentous-container .momentous-dropdown table tr td.lastMonth,
+.momentous-container .momentous-dropdown table tr td.nextMonth {
+  color: #bbb;
+}
+.momentous-container .momentous-dropdown table tr:not(.week) td {
   text-align: center;
   border-radius: 4px;
   cursor: pointer;
   overflow: hidden;
   border: none;
 }
-.momentous-container .momentous-dropdown table td.day {
-  height: 0;
-  padding: 6px 0;
-}
-.momentous-container .momentous-dropdown table td:not(.active):hover {
+.momentous-container .momentous-dropdown table tr:not(.week) td:not(.active):hover {
   background: #efefef;
 }
-.momentous-container .momentous-dropdown table td.active {
+.momentous-container .momentous-dropdown table tr:not(.week) td.active {
   background: #222;
   color: #fff;
 }
-.momentous-container .momentous-dropdown table td.lastMonth,
-.momentous-container .momentous-dropdown table td.nextMonth {
-  color: #bbb;
+.momentous-container .momentous-dropdown table tr.week {
+  border-radius: none;
+}
+.momentous-container .momentous-dropdown table tr.week.active {
+  background: #222;
+  color: #fff;
+}
+.momentous-container .momentous-dropdown table tr.week:not(.active):hover {
+  background: #efefef;
+  cursor: pointer;
+}
+.momentous-container .momentous-dropdown table tr.week td {
+  text-align: center;
+}
+.momentous-container .momentous-dropdown table tr.week td:nth-child(1) {
+  border-radius: 4px 0 0 4px;
+}
+.momentous-container .momentous-dropdown table tr.week td:nth-child(7) {
+  border-radius: 0 4px 4px 0;
 }
 .momentous-container .momentous-dropdown .months-view ul {
   list-style: none;
@@ -99,6 +124,10 @@
   margin: 0 0 8px 8px;
   cursor: pointer;
 }
-.momentous-container .momentous-dropdown .months-view ul li:hover {
+.momentous-container .momentous-dropdown .months-view ul li.active {
+  background: #222;
+  color: #fff;
+}
+.momentous-container .momentous-dropdown .months-view ul li:not(.active):hover {
   background: #efefef;
 }

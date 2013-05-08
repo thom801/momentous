@@ -42,18 +42,15 @@ class Momentous
       dayName = curDay.format('ddd').substring(0,2)
       daysHeader.append "<th class='dow'>#{dayName}</th>"
 
-    # months buttons
-    monthsContainer = @monthsView.find 'ul'
-    curMonth = moment().dayOfYear(1)
-    for month in [0..11]
-      monthName = curMonth.format 'MMM'
-      monthNum = curMonth.format 'M'
-      monthsContainer.append "<li class='month-button' data-date='#{monthNum}'>#{monthName}</li>"
-      curMonth.add 'months', 1
+    
+    if @granularity == 'days' then @showDays()
+    if @granularity == 'weeks'
+      @setDate moment(@curDate).day(1)
+      @showDays()
+    if @granularity == 'months'
+      @setDate moment(@curDate).date(1)
+      @showMonths()
 
-    monthsContainer.find('.month-button').bind 'click', @monthClickHandler
-
-    @showDays()
     @update()
 
   update: =>
@@ -84,36 +81,72 @@ class Momentous
     [0..5].map (week) =>
       weekStart = moment(monthWeekStart).add('days', week * 7)
       daysHTML = ""
+      weekClasses = ""
+      if @granularity == 'weeks'
+        weekClasses = 'week'
       [0..6].map (dow) =>
         curDay = moment weekStart.day(@weekStart + dow).format(@dateFormat), @dateFormat
         curDayDate = curDay.format @dateFormat
         classes = 'day'
         if curDay.month() < month then classes += ' lastMonth'
         if curDay.month() > month then classes += ' nextMonth'
-        if curDay.format(@dateFormat) == @curDate.format(@dateFormat) then classes += ' active'
+        if curDay.format(@dateFormat) == @curDate.format(@dateFormat)
+          classes += ' active'
+          weekClasses += ' active'
         daysHTML += "<td class='#{classes}' data-date='#{curDayDate}'>#{curDay.date()}</td>"
-      weekHTML = "<tr>#{daysHTML}</tr>"
+
+      weekHTML = "<tr class='#{weekClasses}'>#{daysHTML}</tr>"
 
       calHTML += weekHTML
 
     daysContainer.html calHTML
-    @dropdown.find('.day').bind 'click', @dayClickHandler
+
+    if @granularity == 'days'
+      @dropdown.find('.day').bind 'click', @dayClickHandler
+    if @granularity == 'weeks'
+      @dropdown.find('.week').bind 'click', @weekClickHandler
 
   showMonths: =>
     @curView.hide()
     @monthsView.show()
     @curView = @monthsView
 
+    # months buttons
+    monthsContainer = @monthsView.find 'ul'
+    monthsHTML = ''
+    curMonth = moment().dayOfYear(1)
+    for month in [0..11]
+      monthName = curMonth.format 'MMM'
+      monthNum = curMonth.format 'M'
+      if curMonth.month() == @curDate.month()
+        monthsHTML += "<li class='month-button active' data-date='#{monthNum}'>#{monthName}</li>"
+      else
+        monthsHTML += "<li class='month-button' data-date='#{monthNum}'>#{monthName}</li>"
+      
+      curMonth.add 'months', 1
+
+    monthsContainer.html monthsHTML
+
+    monthsContainer.find('.month-button').bind 'click', @monthClickHandler
+
   dayClickHandler: (event) =>
     target = $ event.currentTarget
     @setDate target.data 'date'
+    @hide()
+
+  weekClickHandler: (event) =>
+    target = $ event.currentTarget
+    @setDate target.find('td:first').data 'date'
     @hide()
 
   monthClickHandler: (event) =>
     target = $ event.currentTarget
     monthNum = target.data 'date'
     newDate = moment(@curDate).month(monthNum - 1)
-    @showDays()
+    if @granularity == 'days' then @showDays()
+    if @granularity == 'months'
+      @setDate newDate.date(1)
+      @hide()
     @setDate newDate
 
   viewClickHandler: (event) =>
