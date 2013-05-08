@@ -194,12 +194,14 @@
       target = $(event.currentTarget);
       monthNum = target.data('date');
       newDate = moment(this.curDate).month(monthNum - 1);
-      if (this.granularity === 'days') {
-        this.showDays();
-      }
       if (this.granularity === 'months') {
         this.setDate(newDate.date(1));
         this.hide();
+      } else if (this.granularity === 'weeks') {
+        this.setDate(newDate.day(1));
+        this.showDays();
+      } else {
+        this.showDays();
       }
       return this.setDate(newDate);
     };

@@ -143,10 +143,16 @@ class Momentous
     target = $ event.currentTarget
     monthNum = target.data 'date'
     newDate = moment(@curDate).month(monthNum - 1)
-    if @granularity == 'days' then @showDays()
+
     if @granularity == 'months'
       @setDate newDate.date(1)
       @hide()
+    else if @granularity == 'weeks'
+      @setDate newDate.day(1)
+      @showDays()
+    else
+      @showDays()
+
     @setDate newDate
 
   viewClickHandler: (event) =>
