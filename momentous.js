@@ -16,6 +16,8 @@
 
       this.show = __bind(this.show, this);
 
+      this.setViewDate = __bind(this.setViewDate, this);
+
       this.setDate = __bind(this.setDate, this);
 
       this.directionClickHandler = __bind(this.directionClickHandler, this);
@@ -57,6 +59,7 @@
     Momentous.prototype.init = function() {
       var curDay, dayName, daysHeader, dow, weekStart, _i, _ref;
       this.curDate = moment();
+      this.viewDate = moment();
       this.weekStart = 1;
       this.granularity = 'days';
       if (this.options.date) {
@@ -102,7 +105,7 @@
         navFormat = 'YYYY';
         this.showMonths();
       }
-      return nav.find('.view-button').text(this.curDate.format(navFormat));
+      return nav.find('.view-button').text(this.viewDate.format(navFormat));
     };
 
     Momentous.prototype.showDays = function() {
@@ -111,8 +114,8 @@
       this.curView.hide();
       this.daysView.show();
       this.curView = this.daysView;
-      month = this.curDate.month();
-      monthStart = moment(this.curDate).date(0);
+      month = this.viewDate.month();
+      monthStart = moment(this.viewDate).date(0);
       monthWeekStart = monthStart.day(this.weekStart);
       daysContainer = this.daysView.find('tbody');
       calHTML = "";
@@ -160,11 +163,11 @@
       this.curView = this.monthsView;
       monthsContainer = this.monthsView.find('ul');
       monthsHTML = '';
-      curMonth = moment().dayOfYear(1);
+      curMonth = moment(this.viewDate).dayOfYear(1);
       for (month = _i = 0; _i <= 11; month = ++_i) {
         monthName = curMonth.format('MMM');
         monthNum = curMonth.format('M');
-        if (curMonth.month() === this.curDate.month()) {
+        if (curMonth.month() === this.curDate.month() && curMonth.year() === this.curDate.year()) {
           monthsHTML += "<li class='month-button active' data-date='" + monthNum + "'>" + monthName + "</li>";
         } else {
           monthsHTML += "<li class='month-button' data-date='" + monthNum + "'>" + monthName + "</li>";
@@ -193,17 +196,14 @@
       var monthNum, newDate, target;
       target = $(event.currentTarget);
       monthNum = target.data('date');
-      newDate = moment(this.curDate).month(monthNum - 1);
+      newDate = moment(this.curDate).month(monthNum - 1).year(this.viewDate.year());
       if (this.granularity === 'months') {
         this.setDate(newDate.date(1));
-        this.hide();
-      } else if (this.granularity === 'weeks') {
-        this.setDate(newDate.day(1));
-        this.showDays();
+        return this.hide();
       } else {
-        this.showDays();
+        this.setViewDate(newDate.day(1));
+        return this.showDays();
       }
-      return this.setDate(newDate);
     };
 
     Momentous.prototype.viewClickHandler = function(event) {
@@ -223,10 +223,10 @@
         span = 'years';
       }
       if (target.hasClass('prev')) {
-        this.setDate(moment(this.curDate).subtract(span, 1));
+        this.setViewDate(moment(this.viewDate).subtract(span, 1));
       }
       if (target.hasClass('next')) {
-        return this.setDate(moment(this.curDate).add(span, 1));
+        return this.setViewDate(moment(this.viewDate).add(span, 1));
       }
     };
 
@@ -236,8 +236,14 @@
       return this.events.trigger('dateChange');
     };
 
+    Momentous.prototype.setViewDate = function(date) {
+      this.viewDate = moment(date);
+      return this.update();
+    };
+
     Momentous.prototype.show = function() {
       this.visible = true;
+      this.update();
       return this.dropdown.stop().css({
         display: 'block'
       }).animate({
@@ -246,6 +252,7 @@
     };
 
     Momentous.prototype.hide = function() {
+      this.viewDate = this.curDate;
       this.visible = false;
       return this.dropdown.stop().css({
         display: 'none',
@@ -280,7 +287,7 @@
     return new Momentous(placeholder, options);
   };
 
-  dropdownTemplate = "<div class=\"input-append\">\n  <input class='momentous-input' type='text' value=''>\n  <button class=\"btn momentous-cal-button\" type=\"button\"><i class=\"icon-calendar\"></i></button>\n</div>\n<div class='momentous-dropdown popover bottom'>\n  <div class=\"arrow\"></div>\n  <div class=\"momentous-nav\">\n    <span class=\"dir-button prev\"><i class=\"icon-chevron-left\"></i></span>\n    <span class=\"view-button\"></span>\n    <span class=\"dir-button next\"><i class=\"icon-chevron-right\"></i></span>\n  </div>\n  <div class=\"days-view\" style=\"display: none;\">\n    <table class=\"table-condensed\">\n      <thead>\n        <tr class=\"dow-row\"></tr>\n      </thead>\n      <tbody></tbody>\n    </table>\n  </div>\n  <div class=\"months-view\" style=\"display: none;\">\n    <ul></ul>\n  </div>\n</div>";
+  dropdownTemplate = "<div class=\"input-append\">\n  <input class='momentous-input' type='text' value='' readonly>\n  <button class=\"btn momentous-cal-button\" type=\"button\"><i class=\"icon-calendar\"></i></button>\n</div>\n<div class='momentous-dropdown popover bottom'>\n  <div class=\"arrow\"></div>\n  <div class=\"momentous-nav\">\n    <span class=\"dir-button prev\"><i class=\"icon-chevron-left\"></i></span>\n    <span class=\"view-button\"></span>\n    <span class=\"dir-button next\"><i class=\"icon-chevron-right\"></i></span>\n  </div>\n  <div class=\"days-view\" style=\"display: none;\">\n    <table class=\"table-condensed\">\n      <thead>\n        <tr class=\"dow-row\"></tr>\n      </thead>\n      <tbody></tbody>\n    </table>\n  </div>\n  <div class=\"months-view\" style=\"display: none;\">\n    <ul></ul>\n  </div>\n</div>";
 
   log = function(s) {
     return console.log(s);

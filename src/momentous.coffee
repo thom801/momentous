@@ -24,6 +24,7 @@ class Momentous
   init: =>
     # defaults
     @curDate   = moment()
+    @viewDate  = moment()
     @weekStart = 1 # Monday
     @granularity = 'days'
 
@@ -64,15 +65,15 @@ class Momentous
       navFormat = 'YYYY'
       @showMonths()
 
-    nav.find('.view-button').text @curDate.format navFormat
+    nav.find('.view-button').text @viewDate.format navFormat
 
   showDays: =>
     @curView.hide()
     @daysView.show()
     @curView = @daysView
 
-    month          = @curDate.month()
-    monthStart     = moment(@curDate).date(0)
+    month          = @viewDate.month()
+    monthStart     = moment(@viewDate).date(0)
     monthWeekStart = monthStart.day(@weekStart)
 
     daysContainer = @daysView.find('tbody')
@@ -114,11 +115,11 @@ class Momentous
     # months buttons
     monthsContainer = @monthsView.find 'ul'
     monthsHTML = ''
-    curMonth = moment().dayOfYear(1)
+    curMonth = moment(@viewDate).dayOfYear(1)
     for month in [0..11]
       monthName = curMonth.format 'MMM'
       monthNum = curMonth.format 'M'
-      if curMonth.month() == @curDate.month()
+      if curMonth.month() == @curDate.month() and curMonth.year() == @curDate.year()
         monthsHTML += "<li class='month-button active' data-date='#{monthNum}'>#{monthName}</li>"
       else
         monthsHTML += "<li class='month-button' data-date='#{monthNum}'>#{monthName}</li>"
@@ -142,18 +143,14 @@ class Momentous
   monthClickHandler: (event) =>
     target = $ event.currentTarget
     monthNum = target.data 'date'
-    newDate = moment(@curDate).month(monthNum - 1)
+    newDate = moment(@curDate).month(monthNum - 1).year(@viewDate.year())
 
     if @granularity == 'months'
       @setDate newDate.date(1)
       @hide()
-    else if @granularity == 'weeks'
-      @setDate newDate.day(1)
-      @showDays()
     else
+      @setViewDate newDate.day(1)
       @showDays()
-
-    @setDate newDate
 
   viewClickHandler: (event) =>
     if @curView == @daysView
@@ -170,22 +167,28 @@ class Momentous
       span = 'years'
 
     if target.hasClass 'prev'
-      @setDate moment(@curDate).subtract(span, 1)
+      @setViewDate moment(@viewDate).subtract(span, 1)
     if target.hasClass 'next'
-      @setDate moment(@curDate).add(span, 1)
+      @setViewDate moment(@viewDate).add(span, 1)
 
   setDate: (date) =>
-    @curDate = moment(date, @dateFormat)
+    @curDate = moment date, @dateFormat
     @update()
     @events.trigger 'dateChange'
 
+  setViewDate: (date) =>
+    @viewDate = moment date
+    @update()
+
   show: =>
     @visible = true
+    @update()
     @dropdown.stop().css({display: 'block'}).animate({
       opacity: 1
     }, 200)
 
   hide: =>
+    @viewDate = @curDate
     @visible = false
     @dropdown.stop().css({
       display: 'none'
@@ -204,7 +207,7 @@ window.Momentous = (placeholder, options={}) ->
 
 dropdownTemplate =  """
   <div class="input-append">
-    <input class='momentous-input' type='text' value=''>
+    <input class='momentous-input' type='text' value='' readonly>
     <button class="btn momentous-cal-button" type="button"><i class="icon-calendar"></i></button>
   </div>
   <div class='momentous-dropdown popover bottom'>
