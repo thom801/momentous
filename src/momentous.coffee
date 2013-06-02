@@ -23,10 +23,11 @@ class Momentous
 
   init: =>
     # defaults
-    @curDate   = moment()
-    @viewDate  = moment()
-    @weekStart = 1 # Monday
-    @granularity = 'days'
+    @curDate     = moment()
+    @viewDate    = moment()
+    @today       = moment()
+    @weekStart   = 1 # Monday
+    @granularity = 'days' # days or weeks
 
     if @options.date then @curDate = moment(@options.date, @dateFormat)
     if @options.weekStart in [0,1] then @weekStart = @options.weekStart
@@ -48,6 +49,10 @@ class Momentous
     if @granularity == 'weeks'
       @setDate moment(@curDate).day(1)
       @showDays()
+      # If @today is sunday and weekstart is monday, make sure we init on the right week.
+      if @today.diff @weekStart, 'days' is -1 and @weekStart is 1
+        @curDate.subtract 'weeks', 1
+
     if @granularity == 'months'
       @setDate moment(@curDate).date(1)
       @showMonths()
@@ -203,6 +208,9 @@ class Momentous
   jsDate: => @curDate.toDate()
 
 window.Momentous = (placeholder, options={}) ->
+  if options.dateRange == true
+    log true
+    
   new Momentous placeholder, options
 
 dropdownTemplate =  """
