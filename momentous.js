@@ -70,7 +70,7 @@
       if (this.granularity === 'weeks') {
         this.setDate(moment(this.curDate).day(1));
         this.showDays();
-        if (this.today.diff(this.weekStart, 'days' === -1 && this.weekStart === 1)) {
+        if (this.today.day() === 0 && this.weekStart === 1) {
           this.curDate.subtract('weeks', 1);
         }
       }

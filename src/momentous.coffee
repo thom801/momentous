@@ -43,14 +43,13 @@ class Momentous
       curDay = moment(weekStart).add('days', dow)
       dayName = curDay.format('ddd').substring(0,2)
       daysHeader.append "<th class='dow'>#{dayName}</th>"
-
     
     if @granularity == 'days' then @showDays()
     if @granularity == 'weeks'
       @setDate moment(@curDate).day(1)
       @showDays()
       # If @today is sunday and weekstart is monday, make sure we init on the right week.
-      if @today.diff @weekStart, 'days' is -1 and @weekStart is 1
+      if @today.day() is 0 and @weekStart is 1
         @curDate.subtract 'weeks', 1
 
     if @granularity == 'months'
