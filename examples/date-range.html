@@ -1,0 +1,28 @@
+<html>
+<head>
+  <title>Momentous</title>
+  <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="../momentous.css" rel="stylesheet" media="screen">
+</head>
+<body>
+  <div class="container" style="width: 560px;">
+    <h1>Momentous</h1><hr>
+    <p class="lead">Date Range</p>
+    <div id="placeholder"></div>
+  </div>
+
+  <script src="../lib/jquery.js"></script>
+  <script src="../lib/moment.js"></script>
+  <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+  <script src="../momentous.js"></script>
+
+  <script type="text/javascript">
+    placeholder = $('#placeholder');
+    momentous = Momentous(placeholder, {
+      dateFormat: 'MM-DD-YYYY',
+      dateRangeMode: true
+    });
+  </script>
+</body>
+</html>
+

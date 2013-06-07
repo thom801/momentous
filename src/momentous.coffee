@@ -1,33 +1,38 @@
 class Momentous
-  constructor: (placeholder, options) ->
-    @placeholder = $ placeholder.html dropdownTemplate
-    @events      = $ this
-    @options     = options
-    @dateFormat  = @options.dateFormat or 'MM-DD-YYYY'
-    @daysView    = @placeholder.find '.days-view'
-    @monthsView  = @placeholder.find '.months-view'
-    @curView     = @placeholder.find '.days-view'
-    @input       = @placeholder.find '.momentous-input'
-    @calButton   = @placeholder.find '.momentous-cal-button'
-    @dropdown    = @placeholder.find '.momentous-dropdown'
-    @viewButton  = @dropdown.find '.view-button'
+  constructor: (placeholder, options, controller) ->
+    @placeholder   = $ placeholder.html dropdownTemplate
+    @events        = $ this
+    @options       = options
+    @dateFormat    = @options.dateFormat or 'MM-DD-YYYY'
+    @daysView      = @placeholder.find '.days-view'
+    @monthsView    = @placeholder.find '.months-view'
+    @curView       = @placeholder.find '.days-view'
+    @input         = @placeholder.find '.momentous-input'
+    @calButton     = @placeholder.find '.momentous-cal-button'
+    @dropdown      = @placeholder.find '.momentous-dropdown'
+    @viewButton    = @dropdown.find '.view-button'
+    @dateRangeMode = options.dateRangeMode or false
 
-    @placeholder.addClass 'momentous-container'
+    if @dateRangeMode
+      @controller = controller
+
+    @placeholder.addClass 'momentous-container'      
 
     @input.bind 'click', @toggle
     @calButton.bind 'click', @toggle
     @dropdown.find('.dir-button').bind 'click', @directionClickHandler
     @viewButton.bind 'click', @viewClickHandler
 
-    @init()
-
   init: =>
     # defaults
-    @curDate     = moment()
-    @viewDate    = moment()
-    @today       = moment()
+    @curDate     = moment(moment().format('MM-DD-YYYY'), 'MM-DD-YYYY')
+    @viewDate    = moment(moment().format('MM-DD-YYYY'), 'MM-DD-YYYY')
+    @today       = moment(moment().format('MM-DD-YYYY'), 'MM-DD-YYYY')
     @weekStart   = 1 # Monday
     @granularity = 'days' # days or weeks
+
+    if @dateRangeMode and this is @controller.end
+      @curDate.add('weeks', 1)
 
     if @options.date then @curDate = moment(@options.date, @dateFormat)
     if @options.weekStart in [0,1] then @weekStart = @options.weekStart
@@ -98,6 +103,22 @@ class Momentous
         if curDay.format(@dateFormat) == @curDate.format(@dateFormat)
           classes += ' active'
           weekClasses += ' active'
+
+        if @dateRangeMode
+          startDate = @controller.start.date()
+          endDate = @controller.end.date()
+          daysFromStart = startDate.diff curDay, 'days'
+          daysFromEnd = endDate.diff curDay, 'days'
+          # Apply class to start date
+          if daysFromStart is 0
+            classes += ' startDate'
+          # Apply class to end date
+          if daysFromEnd is 0
+            classes += ' endDate'
+          # Apply class to days within date range
+          if daysFromStart < 0 and daysFromEnd > 0
+            classes += ' inDateRange'
+
         daysHTML += "<td class='#{classes}' data-date='#{curDayDate}'>#{curDay.date()}</td>"
 
       weekHTML = "<tr class='#{weekClasses}'>#{daysHTML}</tr>"
@@ -185,6 +206,7 @@ class Momentous
     @update()
 
   show: =>
+    @events.trigger 'showDropdown'
     @visible = true
     @update()
     @dropdown.stop().css({display: 'block'}).animate({
@@ -192,6 +214,7 @@ class Momentous
     }, 200)
 
   hide: =>
+    @events.trigger 'hideDropdown'
     @viewDate = @curDate
     @visible = false
     @dropdown.stop().css({
@@ -206,11 +229,54 @@ class Momentous
 
   jsDate: => @curDate.toDate()
 
+class DateRangeController
+  constructor: (placeholder, options) ->
+    placeholder.html '<div class="momentous-start-date"></div><div class="momentous-end-date"></div>'
+    startDatePlaceholder = $ '.momentous-start-date'
+    endDatePlaceholder = $ '.momentous-end-date'
+
+    @start = new Momentous startDatePlaceholder, options, this
+    @end = new Momentous endDatePlaceholder, options, this
+
+    @start.init()
+    @end.init()
+
+    @start.events.bind 'dateChange', @startDateChangeHandler
+    @end.events.bind 'dateChange', @endDateChangeHandler
+    @start.events.bind 'showDropdown', @startShowHandler
+    @end.events.bind 'showDropdown', @endShowHandler
+
+  startShowHandler: (event) =>
+    @end.hide()
+
+  endShowHandler: (event) =>
+    @start.hide()
+
+  startDateChangeHandler: (event) =>
+    startDate = @start.date()
+    endDate   = @end.date()
+    diff      = endDate.diff startDate, 'days'
+
+    if diff <= 0
+      @end.setDate moment(startDate).add('weeks', 1)
+
+    @end.show()
+
+  endDateChangeHandler: (event) =>
+    startDate = @start.date()
+    endDate   = @end.date()
+    diff      = endDate.diff startDate, 'days'
+
+    if diff <= 0
+      @start.setDate moment(endDate).subtract('weeks', 1)
+
 window.Momentous = (placeholder, options={}) ->
-  if options.dateRange == true
-    log true
-    
-  new Momentous placeholder, options
+  if options.dateRangeMode is true
+    momentous = new DateRangeController placeholder, options
+  else
+    momentous = new Momentous placeholder, options
+    momentous.init()
+  return momentous
 
 dropdownTemplate =  """
   <div class="input-append">

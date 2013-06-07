@@ -1,9 +1,14 @@
 .momentous-container {
   position: relative;
+  width: 264px;
+  display: inline-block;
+}
+.momentous-container .input-append {
+  margin: 0 20px 20px 0;
 }
 .momentous-container .momentous-input {
   text-align: center;
-  width: 205px;
+  width: 204px;
   font-size: 16px;
   height: 34px;
   padding: 0px;
@@ -19,7 +24,7 @@
 }
 .momentous-container .momentous-dropdown {
   position: absolute;
-  top: 32px;
+  top: 34px;
   background: #fff;
   display: block;
   width: 240px;
@@ -92,6 +97,21 @@
 .momentous-container .momentous-dropdown table tr:not(.week) td.active {
   background: #222;
   color: #fff;
+}
+.momentous-container .momentous-dropdown table tr:not(.week) td.startDate {
+  background: #222;
+  color: #fff;
+  border-radius: 4px 0 0 4px;
+}
+.momentous-container .momentous-dropdown table tr:not(.week) td.endDate {
+  background: #222;
+  color: #fff;
+  border-radius: 0 4px 4px 0;
+}
+.momentous-container .momentous-dropdown table tr:not(.week) td.inDateRange {
+  background: #eee;
+  border-radius: 0;
+  border-bottom: solid 1px #fff;
 }
 .momentous-container .momentous-dropdown table tr.week {
   border-radius: none;
