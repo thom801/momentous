@@ -1,82 +1,45 @@
-<!DOCTYPE html>
 <html>
+<head>
+  <meta charset='utf-8' />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+  <meta name="description" content="Momentous : A Moment.js based datepicker for bootstrap." />
 
-  <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Momentous : A Moment.js based datepicker for bootstrap." />
+  <link href="examples/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
 
-    <link href="examples/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/main.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/momentous.css">
-
-    <title>Momentous</title>
-  </head>
-
-  <body>
-    <div class="container-narrow">
-
-      <div class="jumbotron">
-        <h1>Momentous</h1>
-        <p class="lead">A datepicker for <a href="" title="">bootstrap</a> built with <a href="" title="">Moment.js</a></p>
-        <a class="btn btn-primary" href="https://github.com/thom801/momentous">Download</a>
-        <a class="btn btn-primary" href="https://github.com/thom801/momentous">View on Github</a>
-      </div>
-
-      <hr>
-
-      <div id="demo" class="row-fluid">
-        <div id="placeholder"></div>
-      </div>
-
-      <hr>
-
-      <h3>Basic Usage</h3>
-      <p>Include <code>momentous.js</code> and <code>momentous.css</code> then create a placeholder.</p>
-      <pre>
-        <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"placeholder"</span><span class="nt">&gt;&lt;/div&gt;</span>
-      </pre>
-
-      <p>Create a momentous instance by passing the id of your placeholder.</p>
-      <div class="highlight">
-        <pre>
-          <span class="nx">momentous</span> <span class="o">=</span> <span class="nx">Momentous</span><span class="p">(</span><span class="s1">'placeholder'</span><span class="p">);</span>
-        </pre>
-      </div>
-
-      <h3>Initialize with options</h3>
-      <div class="highlight">
-        <pre>
-          <span class="nx">options</span> <span class="o">=</span> <span class="p">{</span>
-          <span class="nx">dateFormat</span><span class="o">:</span> <span class="s1">'MM-DD-YYYY'</span><span class="p">,</span> <span class="c1">// Any valid moment.js display format.</span>
-          <span class="nx">date</span><span class="o">:</span> <span class="s1">'04-21-2013'</span><span class="p">,</span> <span class="c1">// Must match date format</span>
-          <span class="nx">weekStart</span><span class="o">:</span> <span class="mi">1</span> <span class="c1">// Sunday: 0, Monday: 1</span>
-          <span class="p">};</span>
-          <span class="nx">momentous</span> <span class="o">=</span> <span class="nx">Momentous</span><span class="p">(</span><span class="s1">'placeholder'</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
-        </pre>
-      </div>
-
-      <h3>Events</h3>
-      <div class="highlight">
-        <pre>
-          <span class="nx">momentous</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'dateChange'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
-          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">momentous</span><span class="p">.</span><span class="nx">curDate</span><span class="p">);</span>
-          <span class="p">});</span>
-        </pre>
-      </div>
-
-      <hr>
-
-      <div class="footer">
-        <p>Created and maintainted by <a href="http://github.com/thom801/">thom801</a></p>
-      </div>
-
+  <title>Momentous</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/main.css">
+</head>
+<body>
+  <header id="header" class="">
+    <span id="headerAccent"></span>
+    <img id="logo" src="images/logo.png" alt="">
+  </header>
+  <div id="main">
+    <h1>Momentous.js</h1>
+    <p class="lead">A minimal datepicker for bootstrap projects.</p>
+    <a href="examples/basic.html">
+      <img src="images/simple.png" alt="">
+    </a>
+    <hr>
+    <div class="momentousButtons">
+      <a class="mtbtn" href="https://github.com/thom801/momentous">Docs</a>
+      <a class="mtbtn" href="https://github.com/thom801/momentous">Download</a>
+      <a class="mtbtn" href="https://github.com/thom801/momentous">Github</a>
     </div>
-    
-    <script src="lib/jquery.js"></script>
-    <script src="lib/moment.js"></script>
-    <script src="examples/assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="javascripts/momentous.js"></script>
-    <script src="javascripts/main.js"></script>
-  </body>
+    <hr>
+    <p class="lead">Examples</p>
+    <div class="momentousButtons">
+      <a class="mtbtn" href="examples/basic.html">Basic</a>
+      <a class="mtbtn" href="examples/date-range.html">Date Range</a>
+      <a class="mtbtn" href="examples/events.html">Events</a>
+      <a class="mtbtn" href="examples/granularity-weeks.html">Granularity: Weeks</a>
+      <a class="mtbtn" href="examples/granularity-months.html">Granularity: Months</a>
+    </div>
+    <hr>
+    <div class="footer">
+      <p class="footerText">Created by <a class="btn btn-mini" href="http://github.com/thom801/">thom801</a></p>
+    </div>
+  </div>
+
+</body>
 </html>
