@@ -233,7 +233,7 @@ class DateRangeController
   constructor: (placeholder, options) ->
     placeholder.html '<div class="momentous-start-date"></div><div class="momentous-end-date"></div>'
     startDatePlaceholder = $ '.momentous-start-date'
-    endDatePlaceholder = $ '.momentous-end-date'
+    endDatePlaceholder   = $ '.momentous-end-date'
 
     @start = new Momentous startDatePlaceholder, options, this
     @end = new Momentous endDatePlaceholder, options, this

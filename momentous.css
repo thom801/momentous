@@ -1,30 +1,35 @@
 .momentous-container {
   position: relative;
-  width: 264px;
   display: inline-block;
-}
-.momentous-container .input-append {
   margin: 0 20px 20px 0;
 }
+.momentous-container .input-append {
+  width: 244px;
+}
 .momentous-container .momentous-input {
+  position: absolute;
   text-align: center;
+  left: 0px;
   width: 204px;
   font-size: 16px;
-  height: 34px;
+  height: 32px;
   padding: 0px;
   margin: 0px;
   font-weight: bold;
   color: #222;
   cursor: pointer;
   background: #fff;
+  user-select: none;
 }
 .momentous-container .momentous-cal-button {
+  position: absolute;
+  right: 0px;
   height: 34px;
   width: 40px;
 }
 .momentous-container .momentous-dropdown {
   position: absolute;
-  top: 34px;
+  top: 40px;
   background: #fff;
   display: block;
   width: 240px;
