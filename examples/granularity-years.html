@@ -5,9 +5,8 @@
   <link href="../momentous.css" rel="stylesheet" media="screen">
 </head>
 <body>
-  <div class="container" style="width: 560px;">
+  <div class="container" style="width: 246px;">
     <h1>Momentous</h1><hr>
-    <p class="lead">Date Range</p>
     <div id="placeholder"></div>
   </div>
 
@@ -19,10 +18,9 @@
   <script type="text/javascript">
     placeholder = $('#placeholder');
     momentous = Momentous(placeholder, {
-      dateFormat: 'MM-DD-YYYY',
-      dateRangeMode: true
+      granularity: 'years',
+      dateFormat: 'YYYY'
     });
   </script>
 </body>
 </html>
-
