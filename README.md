@@ -3,6 +3,11 @@
 # Momentous
 A datepicker for [bootstrap](http://twitter.github.io/bootstrap/) built with [Moment.js](http://momentjs.com/)
 
+### Install via Bower
+```bash
+bower install momentous
+```
+
 ### Basic Usage
 Include `momentous.js` and `momentous.css` then create a placeholder.
 ```html
