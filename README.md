@@ -10,19 +10,19 @@ Include `momentous.js` and `momentous.css` then create a placeholder.
 ```
 Create a momentous instance by passing the id of your placeholder.
 ```javascript
-momentous = Momentous('placeholder');
+var momentous = Momentous('placeholder');
 ```
 
 ### Initialize with options
 ```javascript
-options = {
+var options = {
   dateFormat: 'MM-DD-YYYY', // Any valid moment.js display format.
   date: '04-21-2013', // Must match date format
   weekStart: 1, // Sunday: 0, Monday: 1
   granularity: 'days' // 'days', 'weeks', 'months', or 'years' Defaults to days.
 };
 
-momentous = Momentous('placeholder', options);
+var momentous = Momentous('placeholder', options);
 ```
 
 ### Events
