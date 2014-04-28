@@ -1,0 +1,32 @@
+{
+  "name": "momentous",
+  "main": "momentous.js",
+  "version": "0.1.0",
+  "homepage": "https://github.com/thom801/momentous",
+  "authors": [
+    "Thom Allen <thom.j.allen@gmail.com>"
+  ],
+  "description": "A minimal datepicker for bootstrap projects.",
+  "keywords": [
+    "bootstrap",
+    "datepicker",
+    "moment",
+    "momentjs",
+    "coffee",
+    "coffeescript"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src",
+    "examples",
+    "lib",
+    "Gruntfile.coffee",
+    ".gitignore",
+    "package.json"
+  ]
+}
