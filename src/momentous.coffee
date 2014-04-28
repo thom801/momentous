@@ -6,6 +6,7 @@ class Momentous
     @dateFormat    = @options.dateFormat or 'MM-DD-YYYY'
     @daysView      = @placeholder.find '.days-view'
     @monthsView    = @placeholder.find '.months-view'
+    @yearsView     = @placeholder.find '.years-view'
     @curView       = @placeholder.find '.days-view'
     @input         = @placeholder.find '.momentous-input'
     @calButton     = @placeholder.find '.momentous-cal-button'
@@ -16,7 +17,7 @@ class Momentous
     if @dateRangeMode
       @controller = controller
 
-    @placeholder.addClass 'momentous-container'      
+    @placeholder.addClass 'momentous-container'
 
     @input.bind 'click', @toggle
     @calButton.bind 'click', @toggle
@@ -29,7 +30,7 @@ class Momentous
     @viewDate    = moment(moment().format('MM-DD-YYYY'), 'MM-DD-YYYY')
     @today       = moment(moment().format('MM-DD-YYYY'), 'MM-DD-YYYY')
     @weekStart   = 1 # Monday
-    @granularity = 'days' # days or weeks
+    @granularity = 'days' # days, weeks, months, or years
 
     if @dateRangeMode and this is @controller.end
       @curDate.add('weeks', 1)
@@ -48,7 +49,7 @@ class Momentous
       curDay = moment(weekStart).add('days', dow)
       dayName = curDay.format('ddd').substring(0,2)
       daysHeader.append "<th class='dow'>#{dayName}</th>"
-    
+
     if @granularity == 'days' then @showDays()
     if @granularity == 'weeks'
       @setDate moment(@curDate).day(1)
@@ -60,6 +61,9 @@ class Momentous
     if @granularity == 'months'
       @setDate moment(@curDate).date(1)
       @showMonths()
+
+    if @granularity == 'years'
+      @showYears()
 
     @update()
 
@@ -73,13 +77,15 @@ class Momentous
     if @curView == @monthsView
       navFormat = 'YYYY'
       @showMonths()
-
-    nav.find('.view-button').text @viewDate.format navFormat
+    if @curView == @yearsView
+      @showYears()
 
   showDays: =>
     @curView.hide()
     @daysView.show()
     @curView = @daysView
+
+    @viewButton.text @viewDate.format 'MMM YYYY'
 
     month          = @viewDate.month()
     monthStart     = moment(@viewDate).date(0)
@@ -137,6 +143,8 @@ class Momentous
     @monthsView.show()
     @curView = @monthsView
 
+    @viewButton.text @viewDate.format 'YYYY'
+
     # months buttons
     monthsContainer = @monthsView.find 'ul'
     monthsHTML = ''
@@ -145,15 +153,42 @@ class Momentous
       monthName = curMonth.format 'MMM'
       monthNum = curMonth.format 'M'
       if curMonth.month() == @curDate.month() and curMonth.year() == @curDate.year()
-        monthsHTML += "<li class='month-button active' data-date='#{monthNum}'>#{monthName}</li>"
+        monthsHTML += "<li class='active' data-date='#{monthNum}'>#{monthName}</li>"
       else
-        monthsHTML += "<li class='month-button' data-date='#{monthNum}'>#{monthName}</li>"
-      
+        monthsHTML += "<li class='' data-date='#{monthNum}'>#{monthName}</li>"
+
       curMonth.add 'months', 1
 
     monthsContainer.html monthsHTML
 
-    monthsContainer.find('.month-button').bind 'click', @monthClickHandler
+    monthsContainer.find('li').bind 'click', @monthClickHandler
+
+  showYears: =>
+    @curView.hide()
+    @yearsView.show()
+    @curView = @yearsView
+
+    viewRange = @viewDate.year() + ' - ' + (@viewDate.year() + 11)
+
+    @viewButton.text viewRange
+
+    # years buttons
+    yearsContainer = @yearsView.find 'ul'
+    yearsHTML = ''
+    curYear = moment(@viewDate)
+
+    for year in [0..11]
+      yearNum = curYear.format 'YYYY'
+      if curYear.year() == @curDate.year()
+        yearsHTML += "<li class='active' data-date='#{yearNum}'>#{yearNum}</li>"
+      else
+        yearsHTML += "<li class='' data-date='#{yearNum}'>#{yearNum}</li>"
+
+      curYear.add 'years', 1
+
+    yearsContainer.html yearsHTML
+
+    yearsContainer.find('li').bind 'click', @yearClickHandler
 
   dayClickHandler: (event) =>
     target = $ event.currentTarget
@@ -177,9 +212,24 @@ class Momentous
       @setViewDate newDate.day(1)
       @showDays()
 
+  yearClickHandler: (event) =>
+    target = $ event.currentTarget
+    yearNum = target.data 'date'
+    newDate = moment(@curDate).year(yearNum)
+
+    if @granularity == 'years'
+      @setDate newDate.date(1)
+      @hide()
+    else
+      @setViewDate newDate.day(1)
+      @showMonths()
+
   viewClickHandler: (event) =>
     if @curView == @daysView
       @showMonths()
+      @update()
+    else if @curView == @monthsView
+      @showYears()
       @update()
 
   directionClickHandler: (event) =>
@@ -187,14 +237,20 @@ class Momentous
 
     if @curView == @daysView
       span = 'months'
+      amount = 1
 
     if @curView == @monthsView
       span = 'years'
+      amount = 1
+
+    if @curView == @yearsView
+      span = 'years'
+      amount = 12
 
     if target.hasClass 'prev'
-      @setViewDate moment(@viewDate).subtract(span, 1)
+      @setViewDate moment(@viewDate).subtract(span, amount)
     if target.hasClass 'next'
-      @setViewDate moment(@viewDate).add(span, 1)
+      @setViewDate moment(@viewDate).add(span, amount)
 
   setDate: (date) =>
     @curDate = moment date, @dateFormat
@@ -298,18 +354,10 @@ dropdownTemplate =  """
         <tbody></tbody>
       </table>
     </div>
-    <div class="months-view" style="display: none;">
-      <ul></ul>
-    </div>
+    <div class="months-view" style="display: none;"><ul></ul></div>
+    <div class="years-view" style="display: none;"><ul></ul></div>
   </div>
 """
 
 log = (s) ->
   console.log s
-
-
-
-
-
-
-
