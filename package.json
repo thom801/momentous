@@ -1,0 +1,36 @@
+{
+  "name": "momentous",
+  "version": "0.0.0",
+  "description": "A minimal datepicker for bootstrap projects.",
+  "main": "momentous.js",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "grunt": "~0.4.4",
+    "grunt-contrib-coffee": "~0.10.1",
+    "grunt-contrib-stylus": "~0.15.0",
+    "grunt-contrib-watch": "~0.6.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thom801/momentous.git"
+  },
+  "keywords": [
+    "bootstrap",
+    "datepicker",
+    "moment",
+    "coffee",
+    "coffeescript"
+  ],
+  "author": "Thom Allen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thom801/momentous/issues"
+  },
+  "homepage": "https://github.com/thom801/momentous"
+}
