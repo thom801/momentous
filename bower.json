@@ -27,6 +27,7 @@
     "lib",
     "Gruntfile.coffee",
     ".gitignore",
-    "package.json"
+    "package.json",
+    "bower.json"
   ]
 }
