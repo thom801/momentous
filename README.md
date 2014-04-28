@@ -1,4 +1,6 @@
 <img src="http://thom801.github.io/momentous/images/logo.png">
+<img src="http://thom801.github.io/momentous/images/daysview.png">
+<img src="http://thom801.github.io/momentous/images/monthsview.png">
 
 # Momentous
 A datepicker for [bootstrap](http://twitter.github.io/bootstrap/) built with [Moment.js](http://momentjs.com/)
