@@ -19,7 +19,7 @@ options = {
   dateFormat: 'MM-DD-YYYY', // Any valid moment.js display format.
   date: '04-21-2013', // Must match date format
   weekStart: 1, // Sunday: 0, Monday: 1
-  granularity: 'days' // 'days' or 'weeks' Defaults to days.
+  granularity: 'days' // 'days', 'weeks', 'months', or 'years' Defaults to days.
 };
 
 momentous = Momentous('placeholder', options);
