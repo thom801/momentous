@@ -26,6 +26,6 @@
     "examples",
     "lib",
     "Gruntfile.coffee",
-    ".gitignore",
+    ".gitignore"
   ]
 }
