@@ -15,7 +15,7 @@ Include `momentous.js` and `momentous.css` then create a placeholder.
 ```
 Create a momentous instance by passing the id of your placeholder.
 ```javascript
-var momentous = Momentous('placeholder');
+var momentous = Momentous( $('#placeholder') );
 ```
 
 ### Initialize with options
@@ -27,7 +27,7 @@ var options = {
   granularity: 'days' // 'days', 'weeks', 'months', or 'years' Defaults to days.
 };
 
-var momentous = Momentous('placeholder', options);
+var momentous = Momentous( $('#placeholder'), options);
 ```
 
 ### Events
