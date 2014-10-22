@@ -53,7 +53,7 @@
       this.weekStart = 1;
       this.granularity = 'days';
       if (this.dateRangeMode && this === this.controller.end) {
-        this.curDate.add('weeks', 1);
+        this.curDate.add(1, 'weeks');
       }
       if (this.options.date) {
         this.curDate = moment(this.options.date, this.dateFormat);
@@ -68,7 +68,7 @@
       daysHeader = this.daysView.find('.dow-row');
       weekStart = moment().day(this.weekStart);
       for (dow = _i = 0; _i <= 6; dow = ++_i) {
-        curDay = moment(weekStart).add('days', dow);
+        curDay = moment(weekStart).add(dow, 'days');
         dayName = curDay.format('ddd').substring(0, 2);
         daysHeader.append("<th class='dow'>" + dayName + "</th>");
       }
@@ -79,7 +79,7 @@
         this.setDate(moment(this.curDate).day(1));
         this.showDays();
         if (this.today.day() === 0 && this.weekStart === 1) {
-          this.curDate.subtract('weeks', 1);
+          this.curDate.subtract(1, 'weeks');
         }
       }
       if (this.granularity === 'months') {
@@ -123,7 +123,7 @@
       [0, 1, 2, 3, 4, 5].map((function(_this) {
         return function(week) {
           var daysHTML, weekClasses, weekHTML, weekStart;
-          weekStart = moment(monthWeekStart).add('days', week * 7);
+          weekStart = moment(monthWeekStart).add(week * 7, 'days');
           daysHTML = "";
           weekClasses = "";
           if (_this.granularity === 'weeks') {
@@ -191,7 +191,7 @@
         } else {
           monthsHTML += "<li class='' data-date='" + monthNum + "'>" + monthName + "</li>";
         }
-        curMonth.add('months', 1);
+        curMonth.add(1, 'months');
       }
       monthsContainer.html(monthsHTML);
       return monthsContainer.find('li').bind('click', this.monthClickHandler);
@@ -214,7 +214,7 @@
         } else {
           yearsHTML += "<li class='' data-date='" + yearNum + "'>" + yearNum + "</li>";
         }
-        curYear.add('years', 1);
+        curYear.add(1, 'years');
       }
       yearsContainer.html(yearsHTML);
       return yearsContainer.find('li').bind('click', this.yearClickHandler);
@@ -288,10 +288,10 @@
         amount = 12;
       }
       if (target.hasClass('prev')) {
-        this.setViewDate(moment(this.viewDate).subtract(span, amount));
+        this.setViewDate(moment(this.viewDate).subtract(amount, span));
       }
       if (target.hasClass('next')) {
-        return this.setViewDate(moment(this.viewDate).add(span, amount));
+        return this.setViewDate(moment(this.viewDate).add(amount, span));
       }
     };
 
@@ -381,7 +381,7 @@
       endDate = this.end.date();
       diff = endDate.diff(startDate, 'days');
       if (diff <= 0) {
-        this.end.setDate(moment(startDate).add('weeks', 1));
+        this.end.setDate(moment(startDate).add(1, 'weeks'));
       }
       return this.end.show();
     };
@@ -392,7 +392,7 @@
       endDate = this.end.date();
       diff = endDate.diff(startDate, 'days');
       if (diff <= 0) {
-        return this.start.setDate(moment(endDate).subtract('weeks', 1));
+        return this.start.setDate(moment(endDate).subtract(1, 'weeks'));
       }
     };
 
