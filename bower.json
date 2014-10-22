@@ -15,6 +15,10 @@
     "coffee",
     "coffeescript"
   ],
+  "dependencies": {
+    "bootstrap": "~2.3.x",
+    "moment": "~2.8.x"
+  },
   "license": "MIT",
   "ignore": [
     "**/.*",
