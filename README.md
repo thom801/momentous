@@ -7,11 +7,7 @@ A datepicker for [bootstrap](http://twitter.github.io/bootstrap/) built with [Mo
 ```bash
 bower install momentous
 ```
-If you have not done so already, also install Momentous dependencies: Jquery, Moment.js, and Bootstrap.
-```bash
-bower install jquery moment bootstrap
-```
-Include jquery.js, moment.js, bootstrap.js, and bootstrap.css tags into your HTML
+Then include jquery.js, moment.js, bootstrap.js, and bootstrap.css in your HTML.
 
 ### Basic Usage
 Include `momentous.js` and `momentous.css` then create a placeholder.
@@ -41,3 +37,11 @@ momentous.events.on('dateChange', function(event) {
   console.log(momentous.curDate);
 });
 ```
+
+### Development
+To install dev dependencies.
+```bash
+npm install
+```
+
+This will allow you to run `grunt` and it will watch for changes and do all the coffee and stylus compilation for you.

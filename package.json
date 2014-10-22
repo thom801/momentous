@@ -6,12 +6,13 @@
   "directories": {
     "example": "examples"
   },
-  "dependencies": {
-    "bootstrap": "2.3.x",
-    "moment": "2.8.x",
-    "jquery": "2.1.x"
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.4",
+    "grunt-contrib-coffee": "~0.10.1",
+    "grunt-contrib-stylus": "~0.15.0",
+    "grunt-contrib-watch": "~0.6.1"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
