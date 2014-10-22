@@ -7,6 +7,11 @@ A datepicker for [bootstrap](http://twitter.github.io/bootstrap/) built with [Mo
 ```bash
 bower install momentous
 ```
+If you have not done so already, also install Momentous dependencies: Jquery, Moment.js, and Bootstrap.
+```bash
+bower install jquery moment bootstrap
+```
+Include jquery.js, moment.js, bootstrap.js, and bootstrap.css tags into your HTML
 
 ### Basic Usage
 Include `momentous.js` and `momentous.css` then create a placeholder.
