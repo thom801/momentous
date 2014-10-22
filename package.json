@@ -6,11 +6,6 @@
   "directories": {
     "example": "examples"
   },
-  "dependencies": {
-    "bootstrap": "2.3.x",
-    "moment": "2.8.x",
-    "jquery": "2.1.x"
-  },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
