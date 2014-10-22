@@ -33,7 +33,7 @@ class Momentous
     @granularity = 'days' # days, weeks, months, or years
 
     if @dateRangeMode and this is @controller.end
-      @curDate.add('weeks', 1)
+      @curDate.add(1, 'weeks')
 
     if @options.date then @curDate = moment(@options.date, @dateFormat)
     if @options.weekStart in [0,1] then @weekStart = @options.weekStart
@@ -46,7 +46,7 @@ class Momentous
     daysHeader = @daysView.find '.dow-row'
     weekStart = moment().day(@weekStart)
     for dow in [0..6]
-      curDay = moment(weekStart).add('days', dow)
+      curDay = moment(weekStart).add(dow, 'days')
       dayName = curDay.format('ddd').substring(0,2)
       daysHeader.append "<th class='dow'>#{dayName}</th>"
 
@@ -56,7 +56,7 @@ class Momentous
       @showDays()
       # If @today is sunday and weekstart is monday, make sure we init on the right week.
       if @today.day() is 0 and @weekStart is 1
-        @curDate.subtract 'weeks', 1
+        @curDate.subtract 1, 'weeks'
 
     if @granularity == 'months'
       @setDate moment(@curDate).date(1)
@@ -95,7 +95,7 @@ class Momentous
 
     calHTML = ""
     [0..5].map (week) =>
-      weekStart = moment(monthWeekStart).add('days', week * 7)
+      weekStart = moment(monthWeekStart).add(week * 7, 'days')
       daysHTML = ""
       weekClasses = ""
       if @granularity == 'weeks'
@@ -157,7 +157,7 @@ class Momentous
       else
         monthsHTML += "<li class='' data-date='#{monthNum}'>#{monthName}</li>"
 
-      curMonth.add 'months', 1
+      curMonth.add 1, 'months'
 
     monthsContainer.html monthsHTML
 
@@ -184,7 +184,7 @@ class Momentous
       else
         yearsHTML += "<li class='' data-date='#{yearNum}'>#{yearNum}</li>"
 
-      curYear.add 'years', 1
+      curYear.add 1, 'years'
 
     yearsContainer.html yearsHTML
 
@@ -248,9 +248,9 @@ class Momentous
       amount = 12
 
     if target.hasClass 'prev'
-      @setViewDate moment(@viewDate).subtract(span, amount)
+      @setViewDate moment(@viewDate).subtract(amount, span)
     if target.hasClass 'next'
-      @setViewDate moment(@viewDate).add(span, amount)
+      @setViewDate moment(@viewDate).add(amount, span)
 
   setDate: (date) =>
     @curDate = moment date, @dateFormat
@@ -314,7 +314,7 @@ class DateRangeController
     diff      = endDate.diff startDate, 'days'
 
     if diff <= 0
-      @end.setDate moment(startDate).add('weeks', 1)
+      @end.setDate moment(startDate).add(1, 'weeks')
 
     @end.show()
 
@@ -324,7 +324,7 @@ class DateRangeController
     diff      = endDate.diff startDate, 'days'
 
     if diff <= 0
-      @start.setDate moment(endDate).subtract('weeks', 1)
+      @start.setDate moment(endDate).subtract(1, 'weeks')
 
 window.Momentous = (placeholder, options={}) ->
   if options.dateRangeMode is true
