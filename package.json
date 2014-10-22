@@ -6,7 +6,6 @@
   "directories": {
     "example": "examples"
   },
-<<<<<<< HEAD
   "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.4",
@@ -14,9 +13,6 @@
     "grunt-contrib-stylus": "~0.15.0",
     "grunt-contrib-watch": "~0.6.1"
   },
-=======
-  "devDependencies": {},
->>>>>>> 22f16fd484f7a2f23f8f36c703b5f8f1a568953f
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
