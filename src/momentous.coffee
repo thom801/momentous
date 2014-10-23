@@ -3,7 +3,10 @@ class Momentous
     @placeholder   = $ placeholder.html dropdownTemplate
     @events        = $ this
     @options       = options
-    @dateFormat    = @options.dateFormat or 'MM-DD-YYYY'
+    # will probably have to add h:mm:ss a --Ryan
+    @dateFormat    = @options.dateFormat or 'MM-DD-YYYY, HH:00'
+    # adding hoursView --Ryan
+    @hoursView     = @placeholder.find '.hours-view'
     @daysView      = @placeholder.find '.days-view'
     @monthsView    = @placeholder.find '.months-view'
     @yearsView     = @placeholder.find '.years-view'
@@ -26,11 +29,11 @@ class Momentous
 
   init: =>
     # defaults
-    @curDate     = moment(moment().format('MM-DD-YYYY'), 'MM-DD-YYYY')
-    @viewDate    = moment(moment().format('MM-DD-YYYY'), 'MM-DD-YYYY')
-    @today       = moment(moment().format('MM-DD-YYYY'), 'MM-DD-YYYY')
+    @curDate     = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+    @viewDate    = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+    @today       = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
     @weekStart   = 1 # Monday
-    @granularity = 'days' # days, weeks, months, or years
+    @granularity = 'days' # hours, days, weeks, months, or years
 
     if @dateRangeMode and this is @controller.end
       @curDate.add(1, 'weeks')
@@ -49,8 +52,12 @@ class Momentous
       curDay = moment(weekStart).add(dow, 'days')
       dayName = curDay.format('ddd').substring(0,2)
       daysHeader.append "<th class='dow'>#{dayName}</th>"
-
-    if @granularity == 'days' then @showDays()
+    # Adding granularity for hours --Ryan
+    if @granularity == 'hours' then @showHours()
+    if @granularity == 'days'
+      # - added setDate to days to support hours functionality -Ryan
+      @setDate moment(@curDate).hour(1)
+      @showDays()
     if @granularity == 'weeks'
       @setDate moment(@curDate).day(1)
       @showDays()
@@ -70,7 +77,10 @@ class Momentous
   update: =>
     @input.attr 'value', @curDate.format @dateFormat
     nav = @dropdown.find '.momentous-nav'
-
+    #adding hours option in update -Ryan
+    if @curView == @hoursView
+      navFormat = 'MMM YYYY, h:mm a'
+      @showHours()
     if @curView == @daysView
       navFormat = 'MMM YYYY'
       @showDays()
@@ -79,6 +89,40 @@ class Momentous
       @showMonths()
     if @curView == @yearsView
       @showYears()
+
+#########################################################################
+
+# creating showHours function --Ryan
+  showHours: =>
+    @curView.hide()
+    @hoursView.show()
+    @curView = @hoursView
+
+    @viewButton.text @viewDate.format 'MMM Do'
+
+    # hours buttons
+    hoursContainer = @hoursView.find 'ul'
+    hoursHTML = ''
+    curHour = moment(@viewDate).hour(0).minute(0)
+
+    for hour in [0..23]
+      hourNum = curHour.format 'H'
+      trueHour = curHour.format 'HH'
+      curHourDate = curHour.format @dateFormat
+
+      if hour is hourNum
+        hoursHTML += "<li class='active' data-date='#{curHourDate}'>#{trueHour}:00</li>"
+      else
+        hoursHTML += "<li class='' data-date='#{curHourDate}'>#{trueHour}:00</li>"
+
+      curHour.add 1, 'hours'
+
+    hoursContainer.html hoursHTML
+
+    hoursContainer.find('li').bind 'click', @hourClickHandler
+
+
+#########################################################################
 
   showDays: =>
     @curView.hide()
@@ -133,10 +177,10 @@ class Momentous
 
     daysContainer.html calHTML
 
-    if @granularity == 'days'
-      @dropdown.find('.day').bind 'click', @dayClickHandler
     if @granularity == 'weeks'
       @dropdown.find('.week').bind 'click', @weekClickHandler
+    else 
+      @dropdown.find('.day').bind 'click', @dayClickHandler
 
   showMonths: =>
     @curView.hide()
@@ -149,6 +193,7 @@ class Momentous
     monthsContainer = @monthsView.find 'ul'
     monthsHTML = ''
     curMonth = moment(@viewDate).dayOfYear(1)
+    console.log curMonth
     for month in [0..11]
       monthName = curMonth.format 'MMM'
       monthNum = curMonth.format 'M'
@@ -189,11 +234,22 @@ class Momentous
     yearsContainer.html yearsHTML
 
     yearsContainer.find('li').bind 'click', @yearClickHandler
-
-  dayClickHandler: (event) =>
+  #adding click handler for Hours -Ryan
+  hourClickHandler: (event) =>
     target = $ event.currentTarget
     @setDate target.data 'date'
     @hide()
+
+  dayClickHandler: (event) =>
+    target = $ event.currentTarget
+    newDate = target.data 'date'
+    # adding functionality to dayClickHandler to support hours granularity -Ryan
+    if @granularity == 'days'
+      @setDate moment(newDate, @dateFormat)
+      @hide()
+    else
+      @setViewDate moment(newDate, @dateFormat)
+      @showHours()
 
   weekClickHandler: (event) =>
     target = $ event.currentTarget
@@ -225,7 +281,11 @@ class Momentous
       @showMonths()
 
   viewClickHandler: (event) =>
-    if @curView == @daysView
+    # adding hours viewClickHandler -Ryan
+    if @curView == @hoursView
+      @showDays()
+      @update()
+    else if @curView == @daysView
       @showMonths()
       @update()
     else if @curView == @monthsView
@@ -234,6 +294,10 @@ class Momentous
 
   directionClickHandler: (event) =>
     target = $ event.currentTarget
+    # direction arrows change day when in hours view. - Ryan
+    if @curView == @hoursView
+      span = 'days'
+      amount = 1
 
     if @curView == @daysView
       span = 'months'
@@ -354,6 +418,7 @@ dropdownTemplate =  """
         <tbody></tbody>
       </table>
     </div>
+    <div class="hours-view" style="display: none;"><ul></ul></div>
     <div class="months-view" style="display: none;"><ul></ul></div>
     <div class="years-view" style="display: none;"><ul></ul></div>
   </div>
