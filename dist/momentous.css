@@ -206,3 +206,23 @@
 .momentous-container .momentous-dropdown .hours-view-period ul li:not(.active):hover {
   background: #efefef;
 }
+.momentous-container .momentous-dropdown .minutes-view ul {
+  list-style: none;
+  padding: 14px 0 0 0px;
+  margin: 0px;
+}
+.momentous-container .momentous-dropdown .minutes-view ul li {
+  float: left;
+  padding: 3px 12px;
+  width: 26px;
+  border-radius: 4px;
+  margin: 0 0 8px 8px;
+  cursor: pointer;
+}
+.momentous-container .momentous-dropdown .minutes-view ul li.active {
+  background: #222;
+  color: #fff;
+}
+.momentous-container .momentous-dropdown .minutes-view ul li:not(.active):hover {
+  background: #efefef;
+}

@@ -4,8 +4,9 @@ class Momentous
     @events          = $ this
     @options         = options
     @timeFormat      = @options.timeFormat # 12 or 24
+    @minuteGranularity      = @options.minuteGranularity # 1, 5, 10, 15, 20, 30
     @dateFormat      = @options.dateFormat or 'MM-DD-YYYY'
-    # adding hours variables --Ryan
+    @minutesView       = @placeholder.find '.minutes-view'
     @hoursView       = @placeholder.find '.hours-view'
     @hoursViewPeriod = @placeholder.find '.hours-view-period'
     @daysView        = @placeholder.find '.days-view'
@@ -34,7 +35,7 @@ class Momentous
     @viewDate    = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
     @today       = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
     @weekStart   = 1 # Monday
-    @granularity = 'days' # hours, days, weeks, months, or years
+    @granularity = 'days' # minutes, hours, days, weeks, months, or years
 
     if @dateRangeMode and this is @controller.end
       @curDate.add(1, 'weeks')
@@ -53,12 +54,10 @@ class Momentous
       curDay = moment(weekStart).add(dow, 'days')
       dayName = curDay.format('ddd').substring(0,2)
       daysHeader.append "<th class='dow'>#{dayName}</th>"
-    # Adding granularity for hours --Ryan
+
+    if @granularity == 'minutes' then @showMinutes()
     if @granularity == 'hours' then @showHours()
-    if @granularity == 'days'
-      # - added setDate to days to support hours functionality -Ryan
-      @setDate moment(@curDate).hour(1)
-      @showDays()
+    if @granularity == 'days' then @showDays()
     if @granularity == 'weeks'
       @setDate moment(@curDate).day(1)
       @showDays()
@@ -79,6 +78,9 @@ class Momentous
     @input.attr 'value', @curDate.format @dateFormat
     nav = @dropdown.find '.momentous-nav'
     #adding hours option in update -Ryan
+    if @curView == @minutesView
+      navFormat = 'MMM YYYY, h:mm a'
+      @showMinutes()
     if @curView == @hoursViewPeriod
       navFormat = 'MMM YYYY, h:mm a'
       @showHours()
@@ -96,10 +98,55 @@ class Momentous
 
 #########################################################################
 
-# creating showHours prototype --Ryan
+  showMinutes: =>
+    @curView.hide()
+    if @timeFormat == 12
+      @dateFormat = @options.dateFormat or 'MM-DD-YYYY, h:mm a'
+      @viewButton.text @viewDate.format 'MMM Do, h:00 a'
+    else
+      @dateFormat = @options.dateFormat or 'MM-DD-YYYY, HH:mm'
+      @viewButton.text @viewDate.format 'MMM Do, HH:00'
+    @minutesView.show()
+    @curView = @minutesView
+
+    # minutes buttons
+    minutesContainer = @minutesView.find 'ul'
+    minutesHTML = ''
+    curMinute = moment(@viewDate).minute(0)
+
+    for minute in [0..59]
+      if @timeFormat == 12
+        selectedHour = moment(@viewDate).format 'h'
+      else
+        selectedHour = moment(@viewDate).format 'HH'
+      minutesContainer = @minutesView.find 'ul'
+      minuteNum = curMinute.format ':mm'
+      trueMinute = @today.format 'mm'
+      # console.log trueMinute
+      curMinuteDate = curMinute.format @dateFormat
+
+      minuteGran = [1, 5, 10, 15, 20, 30]
+
+      for i of minuteGran
+        if minuteGran[i] == @minuteGranularity
+          if minute % @minuteGranularity == 0
+            if minute is trueMinute
+              # console.log "worked"
+              minutesHTML += "<li class='active' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
+            else
+              minutesHTML += "<li class='' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
+
+      curMinute.add 1, 'minutes'
+
+    minutesContainer.html minutesHTML
+
+    minutesContainer.find('li').bind 'click', @minuteClickHandler
+
+#########################################################################
+
   showHours: =>
     @curView.hide()
-    # 12 hour view with AM/PM --Ryan
+    # 12 hour view with AM/PM
     if @timeFormat == 12
       @dateFormat = @options.dateFormat or 'MM-DD-YYYY, h:mm a'
       @hoursViewPeriod.show()
@@ -116,11 +163,11 @@ class Momentous
         hoursContainer = @hoursViewPeriod.find 'ul'
         hourNum = curHour.format 'h a'
         trueHour = @today.format 'H'
-        console.log trueHour
+        # console.log trueHour
         curHourDate = curHour.format @dateFormat
 
         if hour is trueHour
-          console.log "worked"
+          # console.log "worked"
           hoursHTML += "<li class='active' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
         else
           hoursHTML += "<li class='' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
@@ -131,7 +178,7 @@ class Momentous
 
       hoursContainer.find('li').bind 'click', @hourClickHandler
 
-    # 24 hour view --Ryan
+    # 24 hour view
     else 
       @dateFormat = @options.dateFormat or 'MM-DD-YYYY, HH:00'
       @hoursView.show()
@@ -159,11 +206,6 @@ class Momentous
       hoursContainer.html hoursHTML
 
       hoursContainer.find('li').bind 'click', @hourClickHandler
-
-    
-
-
-#########################################################################
 
   showDays: =>
     @curView.hide()
@@ -274,16 +316,25 @@ class Momentous
     yearsContainer.html yearsHTML
 
     yearsContainer.find('li').bind 'click', @yearClickHandler
-  #adding click handler for Hours -Ryan
-  hourClickHandler: (event) =>
+
+  minuteClickHandler: (event) =>
     target = $ event.currentTarget
     @setDate target.data 'date'
     @hide()
 
+  hourClickHandler: (event) =>
+    target = $ event.currentTarget
+    newDate = target.data 'date'
+    if @granularity == 'hours'
+      @setDate moment(newDate, @dateFormat)
+      @hide()
+    else
+      @setViewDate moment(newDate, @dateFormat)
+      @showMinutes()
+
   dayClickHandler: (event) =>
     target = $ event.currentTarget
     newDate = target.data 'date'
-    # adding functionality to dayClickHandler to support hours granularity -Ryan
     if @granularity == 'days'
       @setDate moment(newDate, @dateFormat)
       @hide()
@@ -321,7 +372,9 @@ class Momentous
       @showMonths()
 
   viewClickHandler: (event) =>
-    # adding hours viewClickHandler -Ryan
+    if @curView == @minutesView
+      @showHours()
+      @update()
     if @curView == @hoursViewPeriod
       @showDays()
       @update()
@@ -337,7 +390,11 @@ class Momentous
 
   directionClickHandler: (event) =>
     target = $ event.currentTarget
-    # direction arrows change day when in hours view. - Ryan
+
+    if @curView == @minutesView
+      span = 'hours'
+      amount = 1
+
     if @curView == @hoursViewPeriod
       span = 'days'
       amount = 1
@@ -465,6 +522,7 @@ dropdownTemplate =  """
         <tbody></tbody>
       </table>
     </div>
+    <div class="minutes-view" style="display: none;"><ul></ul></div>
     <div class="hours-view-period" style="display: none;"><ul></ul></div>
     <div class="hours-view" style="display: none;"><ul></ul></div>
     <div class="months-view" style="display: none;"><ul></ul></div>
