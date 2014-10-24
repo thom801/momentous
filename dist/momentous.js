@@ -31,7 +31,7 @@
       this.events = $(this);
       this.options = options;
       this.timeFormat = this.options.timeFormat;
-      this.minuteGranularity = this.options.minuteGranularity;
+      this.minuteGranularity = this.options.minuteGranularity || 15;
       this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY';
       this.minutesView = this.placeholder.find('.minutes-view');
       this.hoursView = this.placeholder.find('.hours-view');
@@ -83,10 +83,10 @@
         daysHeader.append("<th class='dow'>" + dayName + "</th>");
       }
       if (this.granularity === 'minutes') {
-        this.showMinutes();
+        this.showDays();
       }
       if (this.granularity === 'hours') {
-        this.showHours();
+        this.showDays();
       }
       if (this.granularity === 'days') {
         this.showDays();
@@ -138,7 +138,7 @@
     };
 
     Momentous.prototype.showMinutes = function() {
-      var curMinute, curMinuteDate, i, minute, minuteGran, minuteNum, minutesContainer, minutesHTML, selectedHour, trueMinute, _i;
+      var curMinute, curMinuteDate, i, minute, minuteGran, minuteNum, minutesContainer, minutesHTML, selectedHour, _i;
       this.curView.hide();
       if (this.timeFormat === 12) {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, h:mm a';
@@ -160,13 +160,12 @@
         }
         minutesContainer = this.minutesView.find('ul');
         minuteNum = curMinute.format(':mm');
-        trueMinute = this.today.format('mm');
         curMinuteDate = curMinute.format(this.dateFormat);
         minuteGran = [1, 5, 10, 15, 20, 30];
         for (i in minuteGran) {
           if (minuteGran[i] === this.minuteGranularity) {
             if (minute % this.minuteGranularity === 0) {
-              if (minute === trueMinute) {
+              if (minute === 0) {
                 minutesHTML += "<li class='active' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
               } else {
                 minutesHTML += "<li class='' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
@@ -194,7 +193,7 @@
         for (hour = _i = 0; _i <= 23; hour = ++_i) {
           hoursContainer = this.hoursViewPeriod.find('ul');
           hourNum = curHour.format('h a');
-          trueHour = this.today.format('H');
+          trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
           if (hour === trueHour) {
             hoursHTML += "<li class='active' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
@@ -215,7 +214,7 @@
         curHour = moment(this.viewDate).hour(0).minute(0);
         for (hour = _j = 0; _j <= 23; hour = ++_j) {
           hourNum = curHour.format('HH');
-          trueHour = this.today.format('H');
+          trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
           if (hour === trueHour) {
             hoursHTML += "<li class='active' data-date='" + curHourDate + "'>" + hourNum + ":00</li>";
@@ -410,9 +409,8 @@
     Momentous.prototype.viewClickHandler = function(event) {
       if (this.curView === this.minutesView) {
         this.showHours();
-        this.update();
-      }
-      if (this.curView === this.hoursViewPeriod) {
+        return this.update();
+      } else if (this.curView === this.hoursViewPeriod) {
         this.showDays();
         return this.update();
       } else if (this.curView === this.hoursView) {
@@ -470,6 +468,7 @@
 
     Momentous.prototype.setViewDate = function(date) {
       this.viewDate = moment(date);
+      this.curDate = this.viewDate;
       return this.update();
     };
 

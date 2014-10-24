@@ -4,7 +4,7 @@ class Momentous
     @events          = $ this
     @options         = options
     @timeFormat      = @options.timeFormat # 12 or 24
-    @minuteGranularity      = @options.minuteGranularity # 1, 5, 10, 15, 20, 30
+    @minuteGranularity      = @options.minuteGranularity or 15 # 1, 5, 10, 15, 20, 30
     @dateFormat      = @options.dateFormat or 'MM-DD-YYYY'
     @minutesView       = @placeholder.find '.minutes-view'
     @hoursView       = @placeholder.find '.hours-view'
@@ -55,8 +55,8 @@ class Momentous
       dayName = curDay.format('ddd').substring(0,2)
       daysHeader.append "<th class='dow'>#{dayName}</th>"
 
-    if @granularity == 'minutes' then @showMinutes()
-    if @granularity == 'hours' then @showHours()
+    if @granularity == 'minutes' then @showDays()
+    if @granularity == 'hours' then @showDays()
     if @granularity == 'days' then @showDays()
     if @granularity == 'weeks'
       @setDate moment(@curDate).day(1)
@@ -121,8 +121,7 @@ class Momentous
         selectedHour = moment(@viewDate).format 'HH'
       minutesContainer = @minutesView.find 'ul'
       minuteNum = curMinute.format ':mm'
-      trueMinute = @today.format 'mm'
-      # console.log trueMinute
+      # trueMinute = parseInt @today.format 'mm'
       curMinuteDate = curMinute.format @dateFormat
 
       minuteGran = [1, 5, 10, 15, 20, 30]
@@ -130,7 +129,7 @@ class Momentous
       for i of minuteGran
         if minuteGran[i] == @minuteGranularity
           if minute % @minuteGranularity == 0
-            if minute is trueMinute
+            if minute is 0
               # console.log "worked"
               minutesHTML += "<li class='active' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
             else
@@ -162,12 +161,10 @@ class Momentous
       for hour in [0..23]
         hoursContainer = @hoursViewPeriod.find 'ul'
         hourNum = curHour.format 'h a'
-        trueHour = @today.format 'H'
-        # console.log trueHour
+        trueHour = parseInt @today.format 'H'
         curHourDate = curHour.format @dateFormat
 
         if hour is trueHour
-          # console.log "worked"
           hoursHTML += "<li class='active' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
         else
           hoursHTML += "<li class='' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
@@ -193,7 +190,7 @@ class Momentous
 
       for hour in [0..23]
         hourNum = curHour.format 'HH'
-        trueHour = @today.format 'H'
+        trueHour = parseInt @today.format 'H'
         curHourDate = curHour.format @dateFormat
 
         if hour is trueHour
@@ -375,7 +372,7 @@ class Momentous
     if @curView == @minutesView
       @showHours()
       @update()
-    if @curView == @hoursViewPeriod
+    else if @curView == @hoursViewPeriod
       @showDays()
       @update()
     else if @curView == @hoursView
@@ -427,6 +424,7 @@ class Momentous
 
   setViewDate: (date) =>
     @viewDate = moment date
+    @curDate = @viewDate
     @update()
 
   show: =>
