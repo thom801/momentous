@@ -18,8 +18,11 @@
 
   <script type="text/javascript">
     placeholder = $('#placeholder');
-    momentous = Momentous(placeholder);
+    momentous = Momentous(placeholder, {
+      granularity: 'minutes',
+      timeFormat: 12,
+      minuteGranularity: 5
+    });
   </script>
 </body>
 </html>
-
