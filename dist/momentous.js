@@ -28,8 +28,10 @@
       this.placeholder = $(placeholder.html(dropdownTemplate));
       this.events = $(this);
       this.options = options;
-      this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, HH:00';
+      this.timeFormat = this.options.timeFormat;
+      this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY';
       this.hoursView = this.placeholder.find('.hours-view');
+      this.hoursViewPeriod = this.placeholder.find('.hours-view-period');
       this.daysView = this.placeholder.find('.days-view');
       this.monthsView = this.placeholder.find('.months-view');
       this.yearsView = this.placeholder.find('.years-view');
@@ -104,8 +106,12 @@
       var nav, navFormat;
       this.input.attr('value', this.curDate.format(this.dateFormat));
       nav = this.dropdown.find('.momentous-nav');
-      if (this.curView === this.hoursView) {
+      if (this.curView === this.hoursViewPeriod) {
         navFormat = 'MMM YYYY, h:mm a';
+        this.showHours();
+      }
+      if (this.curView === this.hoursView) {
+        navFormat = 'MMM YYYY, HH:mm';
         this.showHours();
       }
       if (this.curView === this.daysView) {
@@ -122,27 +128,54 @@
     };
 
     Momentous.prototype.showHours = function() {
-      var curHour, curHourDate, hour, hourNum, hoursContainer, hoursHTML, trueHour, _i;
+      var curHour, curHourDate, hour, hourNum, hoursContainer, hoursHTML, trueHour, _i, _j;
       this.curView.hide();
-      this.hoursView.show();
-      this.curView = this.hoursView;
-      this.viewButton.text(this.viewDate.format('MMM Do'));
-      hoursContainer = this.hoursView.find('ul');
-      hoursHTML = '';
-      curHour = moment(this.viewDate).hour(0).minute(0);
-      for (hour = _i = 0; _i <= 23; hour = ++_i) {
-        hourNum = curHour.format('H');
-        trueHour = curHour.format('HH');
-        curHourDate = curHour.format(this.dateFormat);
-        if (hour === hourNum) {
-          hoursHTML += "<li class='active' data-date='" + curHourDate + "'>" + trueHour + ":00</li>";
-        } else {
-          hoursHTML += "<li class='' data-date='" + curHourDate + "'>" + trueHour + ":00</li>";
+      if (this.timeFormat === 12) {
+        this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, h:mm a';
+        this.hoursViewPeriod.show();
+        this.curView = this.hoursViewPeriod;
+        this.viewButton.text(this.viewDate.format('MMM Do'));
+        hoursContainer = this.hoursViewPeriod.find('ul');
+        hoursHTML = '';
+        curHour = moment(this.viewDate).hour(0).minute(0);
+        for (hour = _i = 0; _i <= 23; hour = ++_i) {
+          hoursContainer = this.hoursViewPeriod.find('ul');
+          hourNum = curHour.format('h a');
+          trueHour = this.today.format('H');
+          console.log(trueHour);
+          curHourDate = curHour.format(this.dateFormat);
+          if (hour === trueHour) {
+            console.log("worked");
+            hoursHTML += "<li class='active' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
+          } else {
+            hoursHTML += "<li class='' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
+          }
+          curHour.add(1, 'hours');
         }
-        curHour.add(1, 'hours');
+        hoursContainer.html(hoursHTML);
+        return hoursContainer.find('li').bind('click', this.hourClickHandler);
+      } else {
+        this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, HH:00';
+        this.hoursView.show();
+        this.curView = this.hoursView;
+        this.viewButton.text(this.viewDate.format('MMM Do'));
+        hoursContainer = this.hoursView.find('ul');
+        hoursHTML = '';
+        curHour = moment(this.viewDate).hour(0).minute(0);
+        for (hour = _j = 0; _j <= 23; hour = ++_j) {
+          hourNum = curHour.format('HH');
+          trueHour = this.today.format('H');
+          curHourDate = curHour.format(this.dateFormat);
+          if (hour === trueHour) {
+            hoursHTML += "<li class='active' data-date='" + curHourDate + "'>" + hourNum + ":00</li>";
+          } else {
+            hoursHTML += "<li class='' data-date='" + curHourDate + "'>" + hourNum + ":00</li>";
+          }
+          curHour.add(1, 'hours');
+        }
+        hoursContainer.html(hoursHTML);
+        return hoursContainer.find('li').bind('click', this.hourClickHandler);
       }
-      hoursContainer.html(hoursHTML);
-      return hoursContainer.find('li').bind('click', this.hourClickHandler);
     };
 
     Momentous.prototype.showDays = function() {
@@ -218,7 +251,6 @@
       monthsContainer = this.monthsView.find('ul');
       monthsHTML = '';
       curMonth = moment(this.viewDate).dayOfYear(1);
-      console.log(curMonth);
       for (month = _i = 0; _i <= 11; month = ++_i) {
         monthName = curMonth.format('MMM');
         monthNum = curMonth.format('M');
@@ -312,7 +344,10 @@
     };
 
     Momentous.prototype.viewClickHandler = function(event) {
-      if (this.curView === this.hoursView) {
+      if (this.curView === this.hoursViewPeriod) {
+        this.showDays();
+        return this.update();
+      } else if (this.curView === this.hoursView) {
         this.showDays();
         return this.update();
       } else if (this.curView === this.daysView) {
@@ -327,6 +362,10 @@
     Momentous.prototype.directionClickHandler = function(event) {
       var amount, span, target;
       target = $(event.currentTarget);
+      if (this.curView === this.hoursViewPeriod) {
+        span = 'days';
+        amount = 1;
+      }
       if (this.curView === this.hoursView) {
         span = 'days';
         amount = 1;
@@ -470,7 +509,7 @@
     return momentous;
   };
 
-  dropdownTemplate = "<div class=\"input-append\">\n  <input class='momentous-input' type='text' value='' readonly>\n  <button class=\"btn momentous-cal-button\" type=\"button\"><i class=\"icon-calendar\"></i></button>\n</div>\n<div class='momentous-dropdown popover bottom'>\n  <div class=\"arrow\"></div>\n  <div class=\"momentous-nav\">\n    <span class=\"dir-button prev\"><i class=\"icon-chevron-left\"></i></span>\n    <span class=\"view-button\"></span>\n    <span class=\"dir-button next\"><i class=\"icon-chevron-right\"></i></span>\n  </div>\n  <div class=\"days-view\" style=\"display: none;\">\n    <table class=\"table-condensed\">\n      <thead>\n        <tr class=\"dow-row\"></tr>\n      </thead>\n      <tbody></tbody>\n    </table>\n  </div>\n  <div class=\"hours-view\" style=\"display: none;\"><ul></ul></div>\n  <div class=\"months-view\" style=\"display: none;\"><ul></ul></div>\n  <div class=\"years-view\" style=\"display: none;\"><ul></ul></div>\n</div>";
+  dropdownTemplate = "<div class=\"input-append\">\n  <input class='momentous-input' type='text' value='' readonly>\n  <button class=\"btn momentous-cal-button\" type=\"button\"><i class=\"icon-calendar\"></i></button>\n</div>\n<div class='momentous-dropdown popover bottom'>\n  <div class=\"arrow\"></div>\n  <div class=\"momentous-nav\">\n    <span class=\"dir-button prev\"><i class=\"icon-chevron-left\"></i></span>\n    <span class=\"view-button\"></span>\n    <span class=\"dir-button next\"><i class=\"icon-chevron-right\"></i></span>\n  </div>\n  <div class=\"days-view\" style=\"display: none;\">\n    <table class=\"table-condensed\">\n      <thead>\n        <tr class=\"dow-row\"></tr>\n      </thead>\n      <tbody></tbody>\n    </table>\n  </div>\n  <div class=\"hours-view-period\" style=\"display: none;\"><ul></ul></div>\n  <div class=\"hours-view\" style=\"display: none;\"><ul></ul></div>\n  <div class=\"months-view\" style=\"display: none;\"><ul></ul></div>\n  <div class=\"years-view\" style=\"display: none;\"><ul></ul></div>\n</div>";
 
   log = function(s) {
     return console.log(s);
