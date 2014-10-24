@@ -31,9 +31,14 @@ class Momentous
 
   init: =>
     # defaults
-    @curDate     = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
-    @viewDate    = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
-    @today       = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+    if @dateRangeMode
+      @curDate     = moment(moment().format(@dateFormat), @dateFormat)
+      @viewDate    = moment(moment().format(@dateFormat), @dateFormat)
+      @today       = moment(moment().format(@dateFormat), @dateFormat)
+    else
+      @curDate     = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+      @viewDate    = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+      @today       = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
     @weekStart   = 1 # Monday
     @granularity = 'days' # minutes, hours, days, weeks, months, or years
 
@@ -130,7 +135,6 @@ class Momentous
         if minuteGran[i] == @minuteGranularity
           if minute % @minuteGranularity == 0
             if minute is 0
-              # console.log "worked"
               minutesHTML += "<li class='active' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
             else
               minutesHTML += "<li class='' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
@@ -163,9 +167,26 @@ class Momentous
         hourNum = curHour.format 'h a'
         trueHour = parseInt @today.format 'H'
         curHourDate = curHour.format @dateFormat
+        classes = ''
+
+        # if @dateRangeMode && @granularity == 'hours'
+        #   startDate = @controller.start.date()
+        #   endDate = @controller.end.date()
+        #   hoursFromStart = startDate.diff curHour, 'hours'
+        #   hoursFromEnd = endDate.diff curHour, 'hours'
+        #   # Apply class to start date
+        #   if hoursFromStart is 0
+        #     classes += ' startDate'
+        #   # Apply class to end date
+        #   if hoursFromEnd is 0
+        #     classes += ' endDate'
+        #   # Apply class to days within date range
+        #   if hoursFromStart < 0 and hoursFromEnd > 0
+        #     classes += ' inDateRange'
 
         if hour is trueHour
-          hoursHTML += "<li class='active' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
+          classes += ' active'
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
         else
           hoursHTML += "<li class='' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
 
@@ -234,7 +255,7 @@ class Momentous
           classes += ' active'
           weekClasses += ' active'
 
-        if @dateRangeMode
+        if @dateRangeMode && @granularity == 'days'
           startDate = @controller.start.date()
           endDate = @controller.end.date()
           daysFromStart = startDate.diff curDay, 'days'

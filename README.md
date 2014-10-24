@@ -23,11 +23,11 @@ var momentous = Momentous( $('#placeholder') );
 ```javascript
 var options = {
   dateFormat: 'MM-DD-YYYY, h:mm a', // Any valid moment.js display format. Default is "MM-DD-YYYY"
-  date: '04-21-2013, 12:00 pm', // Date you want to initially show. Must match dateFormat
+  date: '04-21-2013, 12:00 pm', // Date you want to initially show. Must match dateFormat. Default is current date
   weekStart: 1, // Sunday: 0, Monday: 1
   granularity: 'days', // 'minutes', 'hours', 'days', 'weeks', 'months', or 'years' Defaults to days.
-  timeFormat: 12, // Only applicable for hours or minutes granularity. 12 Sets time format to AM/PM. Default is 24-hour format. Options: 12, 24
-  minuteGranularity: 5 // Options: 1, 5, 10, 15, 20, 30
+  timeFormat: 12, // Only applicable for hours or minutes granularity. 12 Sets time to AM/PM format. Default is 24-hour format. Options: 12, 24
+  minuteGranularity: 5 // What size minute increments to show. Options: 1, 5, 10, 15, 20, 30. Default is 15.
 };
 
 var momentous = Momentous( $('#placeholder'), options);

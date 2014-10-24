@@ -57,9 +57,15 @@
 
     Momentous.prototype.init = function() {
       var curDay, dayName, daysHeader, dow, weekStart, _i, _ref;
-      this.curDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
-      this.viewDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
-      this.today = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
+      if (this.dateRangeMode) {
+        this.curDate = moment(moment().format(this.dateFormat), this.dateFormat);
+        this.viewDate = moment(moment().format(this.dateFormat), this.dateFormat);
+        this.today = moment(moment().format(this.dateFormat), this.dateFormat);
+      } else {
+        this.curDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
+        this.viewDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
+        this.today = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
+      }
       this.weekStart = 1;
       this.granularity = 'days';
       if (this.dateRangeMode && this === this.controller.end) {
@@ -180,7 +186,7 @@
     };
 
     Momentous.prototype.showHours = function() {
-      var curHour, curHourDate, hour, hourNum, hoursContainer, hoursHTML, trueHour, _i, _j;
+      var classes, curHour, curHourDate, hour, hourNum, hoursContainer, hoursHTML, trueHour, _i, _j;
       this.curView.hide();
       if (this.timeFormat === 12) {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, h:mm a';
@@ -195,8 +201,10 @@
           hourNum = curHour.format('h a');
           trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
+          classes = '';
           if (hour === trueHour) {
-            hoursHTML += "<li class='active' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
+            classes += ' active';
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
           } else {
             hoursHTML += "<li class='' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
           }
@@ -263,7 +271,7 @@
               classes += ' active';
               weekClasses += ' active';
             }
-            if (_this.dateRangeMode) {
+            if (_this.dateRangeMode && _this.granularity === 'days') {
               startDate = _this.controller.start.date();
               endDate = _this.controller.end.date();
               daysFromStart = startDate.diff(curDay, 'days');
