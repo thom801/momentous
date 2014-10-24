@@ -25,8 +25,8 @@ var options = {
   dateFormat: 'MM-DD-YYYY, h:mm a', // Any valid moment.js display format. Default is "MM-DD-YYYY"
   date: '04-21-2013, 12:00 pm', // Date you want to initially show. Must match dateFormat
   weekStart: 1, // Sunday: 0, Monday: 1
-  granularity: 'days', // 'hours', 'days', 'weeks', 'months', or 'years' Defaults to days.
-  timeFormat: 12, // Only applicable for hours or minutes granularity. Sets time format to AM/PM. Default is 24-hour format. Options: 12, 24
+  granularity: 'days', // 'minutes', 'hours', 'days', 'weeks', 'months', or 'years' Defaults to days.
+  timeFormat: 12, // Only applicable for hours or minutes granularity. 12 Sets time format to AM/PM. Default is 24-hour format. Options: 12, 24
   minuteGranularity: 5 // Options: 1, 5, 10, 15, 20, 30
 };
 
