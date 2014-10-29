@@ -182,6 +182,20 @@
 .momentous-container .momentous-dropdown .hours-view ul li:not(.active):hover {
   background: #efefef;
 }
+.momentous-container .momentous-dropdown .hours-view ul li.startDate {
+  background: #222;
+  color: #fff;
+  border-radius: 4px 0 0 4px;
+}
+.momentous-container .momentous-dropdown .hours-view ul li.endDate {
+  background: #222;
+  color: #fff;
+  border-radius: 0 4px 4px 0;
+}
+.momentous-container .momentous-dropdown .hours-view ul li.inDateRange {
+  background: #eee;
+  border-radius: 0;
+}
 .momentous-container .momentous-dropdown .hours-view-period ul {
   list-style: none;
   padding: 14px 0 0 0px;
@@ -205,6 +219,20 @@
 }
 .momentous-container .momentous-dropdown .hours-view-period ul li:not(.active):hover {
   background: #efefef;
+}
+.momentous-container .momentous-dropdown .hours-view-period ul li.startDate {
+  background: #222;
+  color: #fff;
+  border-radius: 4px 0 0 4px;
+}
+.momentous-container .momentous-dropdown .hours-view-period ul li.endDate {
+  background: #222;
+  color: #fff;
+  border-radius: 0 4px 4px 0;
+}
+.momentous-container .momentous-dropdown .hours-view-period ul li.inDateRange {
+  background: #eee;
+  border-radius: 0;
 }
 .momentous-container .momentous-dropdown .minutes-view ul {
   list-style: none;

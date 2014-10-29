@@ -8,6 +8,7 @@
       this.jsDate = __bind(this.jsDate, this);
       this.date = __bind(this.date, this);
       this.toggle = __bind(this.toggle, this);
+      this.difference = __bind(this.difference, this);
       this.hide = __bind(this.hide, this);
       this.show = __bind(this.show, this);
       this.setViewDate = __bind(this.setViewDate, this);
@@ -57,20 +58,11 @@
 
     Momentous.prototype.init = function() {
       var curDay, dayName, daysHeader, dow, weekStart, _i, _ref;
-      if (this.dateRangeMode) {
-        this.curDate = moment(moment().format(this.dateFormat), this.dateFormat);
-        this.viewDate = moment(moment().format(this.dateFormat), this.dateFormat);
-        this.today = moment(moment().format(this.dateFormat), this.dateFormat);
-      } else {
-        this.curDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
-        this.viewDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
-        this.today = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
-      }
+      this.curDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
+      this.viewDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
+      this.today = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
       this.weekStart = 1;
       this.granularity = 'days';
-      if (this.dateRangeMode && this === this.controller.end) {
-        this.curDate.add(1, 'weeks');
-      }
       if (this.options.date) {
         this.curDate = moment(this.options.date, this.dateFormat);
       }
@@ -79,6 +71,19 @@
       }
       if (this.options.granularity) {
         this.granularity = this.options.granularity;
+      }
+      if (this.dateRangeMode && this === this.controller.start) {
+        if (this.granularity === 'hours') {
+          this.curDate.minutes(0);
+        }
+      }
+      if (this.dateRangeMode && this === this.controller.end) {
+        if (this.granularity === 'days') {
+          this.curDate.add(1, 'weeks');
+        }
+        if (this.granularity === 'hours') {
+          this.curDate.add(3, 'hours').minutes(0);
+        }
       }
       this.curView.show();
       daysHeader = this.daysView.find('.dow-row');
@@ -186,7 +191,7 @@
     };
 
     Momentous.prototype.showHours = function() {
-      var classes, curHour, curHourDate, hour, hourNum, hoursContainer, hoursHTML, trueHour, _i, _j;
+      var calendarDate, calendarDateFormat, classes, curHour, curHourDate, endDate, hour, hourNum, hoursContainer, hoursHTML, startDate, trueHour, _i, _j;
       this.curView.hide();
       if (this.timeFormat === 12) {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, h:mm a';
@@ -202,11 +207,28 @@
           trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
           classes = '';
+          if (this.dateRangeMode && this.granularity === 'hours') {
+            startDate = this.controller.start.date().format('MM-DD-YYYY, HH:00');
+            endDate = this.controller.end.date().format('MM-DD-YYYY, HH:00');
+            calendarDate = moment(curHour);
+            calendarDateFormat = calendarDate.format('MM-DD-YYYY, HH:00');
+            if (startDate === calendarDateFormat) {
+              classes += ' startDate';
+            }
+            if (endDate === calendarDateFormat && endDate > startDate) {
+              classes += ' endDate';
+            }
+            if (calendarDateFormat > startDate && calendarDateFormat < endDate) {
+              classes += ' inDateRange';
+            }
+          }
           if (hour === trueHour) {
-            classes += ' active';
+            if (!this.dateRangeMode) {
+              classes += ' active';
+            }
             hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
           } else {
-            hoursHTML += "<li class='' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
           }
           curHour.add(1, 'hours');
         }
@@ -257,7 +279,7 @@
             weekClasses = 'week';
           }
           [0, 1, 2, 3, 4, 5, 6].map(function(dow) {
-            var classes, curDay, curDayDate, daysFromEnd, daysFromStart, endDate, startDate;
+            var calendarDate, calendarDateFormat, classes, curDay, curDayDate, endDate, startDate;
             curDay = moment(weekStart.day(_this.weekStart + dow).format(_this.dateFormat), _this.dateFormat);
             curDayDate = curDay.format(_this.dateFormat);
             classes = 'day';
@@ -267,22 +289,22 @@
             if (curDay.month() > month) {
               classes += ' nextMonth';
             }
-            if (curDay.format(_this.dateFormat) === _this.curDate.format(_this.dateFormat)) {
+            if (curDay.format(_this.dateFormat) === _this.curDate.format(_this.dateFormat) && !_this.dateRangeMode) {
               classes += ' active';
               weekClasses += ' active';
             }
-            if (_this.dateRangeMode && _this.granularity === 'days') {
-              startDate = _this.controller.start.date();
-              endDate = _this.controller.end.date();
-              daysFromStart = startDate.diff(curDay, 'days');
-              daysFromEnd = endDate.diff(curDay, 'days');
-              if (daysFromStart === 0) {
+            if (_this.dateRangeMode) {
+              startDate = _this.controller.start.date().format('MM-DD-YYYY');
+              endDate = _this.controller.end.date().format('MM-DD-YYYY');
+              calendarDate = moment(curDay);
+              calendarDateFormat = calendarDate.format('MM-DD-YYYY');
+              if (startDate === calendarDateFormat) {
                 classes += ' startDate';
               }
-              if (daysFromEnd === 0) {
+              if (endDate === calendarDateFormat && endDate > startDate) {
                 classes += ' endDate';
               }
-              if (daysFromStart < 0 && daysFromEnd > 0) {
+              if (calendarDateFormat > startDate && calendarDateFormat < endDate) {
                 classes += ' inDateRange';
               }
             }
@@ -501,6 +523,15 @@
       });
     };
 
+    Momentous.prototype.difference = function(startDay, curDay) {
+      var diffDivide, diffHourFinal, diffHours, diffMonth;
+      diffMonth = startDay.diff(curDay, 'months');
+      diffHours = startDay.diff(curDay, 'hours');
+      diffDivide = diffHours / 24;
+      diffHourFinal = Math.round(diffDivide);
+      return diffMonth + diffHourFinal;
+    };
+
     Momentous.prototype.toggle = function() {
       if (this.visible) {
         return this.hide();
@@ -553,9 +584,14 @@
       var diff, endDate, startDate;
       startDate = this.start.date();
       endDate = this.end.date();
-      diff = endDate.diff(startDate, 'days');
+      diff = this.granularity === 'days' ? endDate.diff(startDate, 'days') : endDate.diff(startDate, 'hours');
       if (diff <= 0) {
-        this.end.setDate(moment(startDate).add(1, 'weeks'));
+        if (this.granularity === 'days') {
+          this.end.setDate(moment(startDate).add(1, 'weeks'));
+        }
+        if (this.granularity === 'hours') {
+          this.end.setDate(moment(startDate).add(1, 'hours'));
+        }
       }
       return this.end.show();
     };
@@ -564,9 +600,14 @@
       var diff, endDate, startDate;
       startDate = this.start.date();
       endDate = this.end.date();
-      diff = endDate.diff(startDate, 'days');
+      diff = this.granularity === 'days' ? endDate.diff(startDate, 'days') : endDate.diff(startDate, 'hours');
       if (diff <= 0) {
-        return this.start.setDate(moment(endDate).subtract(1, 'weeks'));
+        if (this.granularity === 'days') {
+          this.start.setDate(moment(endDate).subtract(1, 'weeks'));
+        }
+        if (this.granularity === 'hours') {
+          return this.start.setDate(moment(endDate).subtract(1, 'hours'));
+        }
       }
     };
 

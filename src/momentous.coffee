@@ -31,24 +31,31 @@ class Momentous
 
   init: =>
     # defaults
-    if @dateRangeMode
-      @curDate     = moment(moment().format(@dateFormat), @dateFormat)
-      @viewDate    = moment(moment().format(@dateFormat), @dateFormat)
-      @today       = moment(moment().format(@dateFormat), @dateFormat)
-    else
-      @curDate     = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
-      @viewDate    = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
-      @today       = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+    # if @dateRangeMode
+    #   @curDate     = moment(moment().format(@dateFormat), @dateFormat)
+    #   @viewDate    = moment(moment().format(@dateFormat), @dateFormat)
+    #   @today       = moment(moment().format(@dateFormat), @dateFormat)
+    # else
+    @curDate     = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+    @viewDate    = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+    @today       = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
     @weekStart   = 1 # Monday
     @granularity = 'days' # minutes, hours, days, weeks, months, or years
-
-    if @dateRangeMode and this is @controller.end
-      @curDate.add(1, 'weeks')
 
     if @options.date then @curDate = moment(@options.date, @dateFormat)
     if @options.weekStart in [0,1] then @weekStart = @options.weekStart
     if @options.granularity then @granularity = @options.granularity
     #if @options.language then moment.lang @options.language
+
+    if @dateRangeMode and this is @controller.start
+      if @granularity == 'hours'
+        @curDate.minutes(0)
+
+    if @dateRangeMode and this is @controller.end
+      if @granularity == 'days'
+        @curDate.add(1, 'weeks')
+      if @granularity == 'hours'
+        @curDate.add(3, 'hours').minutes(0)
 
     @curView.show()
 
@@ -169,26 +176,27 @@ class Momentous
         curHourDate = curHour.format @dateFormat
         classes = ''
 
-        # if @dateRangeMode && @granularity == 'hours'
-        #   startDate = @controller.start.date()
-        #   endDate = @controller.end.date()
-        #   hoursFromStart = startDate.diff curHour, 'hours'
-        #   hoursFromEnd = endDate.diff curHour, 'hours'
-        #   # Apply class to start date
-        #   if hoursFromStart is 0
-        #     classes += ' startDate'
-        #   # Apply class to end date
-        #   if hoursFromEnd is 0
-        #     classes += ' endDate'
-        #   # Apply class to days within date range
-        #   if hoursFromStart < 0 and hoursFromEnd > 0
-        #     classes += ' inDateRange'
+        if @dateRangeMode && @granularity == 'hours'
+          startDate = @controller.start.date().format('MM-DD-YYYY, HH:00')
+          endDate = @controller.end.date().format('MM-DD-YYYY, HH:00')
+          calendarDate = moment curHour
+          calendarDateFormat = calendarDate.format 'MM-DD-YYYY, HH:00'
+          # Apply class to start date
+          if startDate == calendarDateFormat
+            classes += ' startDate'
+          # Apply class to end date
+          if endDate == calendarDateFormat && endDate > startDate
+            classes += ' endDate'
+          # Apply class to days within date range
+          if calendarDateFormat > startDate and calendarDateFormat < endDate
+            classes += ' inDateRange'
 
         if hour is trueHour
-          classes += ' active'
+          if !@dateRangeMode
+            classes += ' active'
           hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
         else
-          hoursHTML += "<li class='' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
 
         curHour.add 1, 'hours'
 
@@ -251,23 +259,23 @@ class Momentous
         classes = 'day'
         if curDay.month() < month then classes += ' lastMonth'
         if curDay.month() > month then classes += ' nextMonth'
-        if curDay.format(@dateFormat) == @curDate.format(@dateFormat)
+        if curDay.format(@dateFormat) == @curDate.format(@dateFormat) && !@dateRangeMode
           classes += ' active'
           weekClasses += ' active'
 
-        if @dateRangeMode && @granularity == 'days'
-          startDate = @controller.start.date()
-          endDate = @controller.end.date()
-          daysFromStart = startDate.diff curDay, 'days'
-          daysFromEnd = endDate.diff curDay, 'days'
+        if @dateRangeMode
+          startDate = @controller.start.date().format('MM-DD-YYYY')
+          endDate = @controller.end.date().format('MM-DD-YYYY')
+          calendarDate = moment curDay
+          calendarDateFormat = calendarDate.format 'MM-DD-YYYY'
           # Apply class to start date
-          if daysFromStart is 0
+          if startDate == calendarDateFormat
             classes += ' startDate'
           # Apply class to end date
-          if daysFromEnd is 0
+          if endDate == calendarDateFormat && endDate > startDate
             classes += ' endDate'
-          # Apply class to days within date range
-          if daysFromStart < 0 and daysFromEnd > 0
+          # # Apply class to days within date range
+          if calendarDateFormat > startDate and calendarDateFormat < endDate
             classes += ' inDateRange'
 
         daysHTML += "<td class='#{classes}' data-date='#{curDayDate}'>#{curDay.date()}</td>"
@@ -465,6 +473,15 @@ class Momentous
       opacity: 0
     })
 
+  difference: (startDay, curDay) =>
+    diffMonth = startDay.diff curDay, 'months'
+    diffHours = startDay.diff curDay, 'hours'
+    diffDivide = diffHours / 24
+    diffHourFinal = Math.round(diffDivide)
+    diffMonth + diffHourFinal
+
+
+
   toggle: =>
     if @visible then @hide() else @show()
 
@@ -498,20 +515,26 @@ class DateRangeController
   startDateChangeHandler: (event) =>
     startDate = @start.date()
     endDate   = @end.date()
-    diff      = endDate.diff startDate, 'days'
+    diff      = if @granularity == 'days' then endDate.diff startDate, 'days' else endDate.diff startDate, 'hours'
 
     if diff <= 0
-      @end.setDate moment(startDate).add(1, 'weeks')
+      if @granularity == 'days'
+        @end.setDate moment(startDate).add(1, 'weeks')
+      if @granularity == 'hours'
+        @end.setDate moment(startDate).add(1, 'hours')
 
     @end.show()
 
   endDateChangeHandler: (event) =>
     startDate = @start.date()
     endDate   = @end.date()
-    diff      = endDate.diff startDate, 'days'
+    diff      = if @granularity == 'days' then endDate.diff startDate, 'days' else endDate.diff startDate, 'hours'
 
     if diff <= 0
-      @start.setDate moment(endDate).subtract(1, 'weeks')
+      if @granularity == 'days'
+        @start.setDate moment(endDate).subtract(1, 'weeks')
+      if @granularity == 'hours'
+        @start.setDate moment(endDate).subtract(1, 'hours')
 
 window.Momentous = (placeholder, options={}) ->
   if options.dateRangeMode is true
