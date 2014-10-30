@@ -31,11 +31,6 @@ class Momentous
 
   init: =>
     # defaults
-    # if @dateRangeMode
-    #   @curDate     = moment(moment().format(@dateFormat), @dateFormat)
-    #   @viewDate    = moment(moment().format(@dateFormat), @dateFormat)
-    #   @today       = moment(moment().format(@dateFormat), @dateFormat)
-    # else
     @curDate     = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
     @viewDate    = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
     @today       = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
@@ -48,13 +43,13 @@ class Momentous
     #if @options.language then moment.lang @options.language
 
     if @dateRangeMode and this is @controller.start
-      if @granularity == 'hours'
+      if @granularity == 'hours' || @granularity == 'minutes'
         @curDate.minutes(0)
 
     if @dateRangeMode and this is @controller.end
       if @granularity == 'days'
         @curDate.add(1, 'weeks')
-      if @granularity == 'hours'
+      if @granularity == 'hours' || @granularity == 'minutes'
         @curDate.add(3, 'hours').minutes(0)
 
     @curView.show()
@@ -135,16 +130,39 @@ class Momentous
       minuteNum = curMinute.format ':mm'
       # trueMinute = parseInt @today.format 'mm'
       curMinuteDate = curMinute.format @dateFormat
+      classes = ''
 
       minuteGran = [1, 5, 10, 15, 20, 30]
 
       for i of minuteGran
         if minuteGran[i] == @minuteGranularity
           if minute % @minuteGranularity == 0
+
+            if @dateRangeMode
+              startDate = @controller.start.date().format('MM-DD-YYYY, HH:mm')
+              # console.log startDate
+              endDate = @controller.end.date().format('MM-DD-YYYY, HH:mm')
+              calendarDate = moment curMinute
+              calendarDate = calendarDate.format 'MM-DD-YYYY, HH:mm'
+              # console.log calendarDate
+              # Apply class to start date
+              if startDate == calendarDate
+                classes += ' startDate'
+              # Apply class to end date
+              if endDate == calendarDate && endDate > startDate
+                classes += ' endDate'
+              # Apply class to days within date range
+              if calendarDate > startDate and calendarDate < endDate
+                classes += ' inDateRange'
+              if calendarDate < startDate
+                classes += ' disabled'
+
             if minute is 0
-              minutesHTML += "<li class='active' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
+              if !@dateRangeMode
+                classes += ' active'
+              minutesHTML += "<li class='#{classes}' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
             else
-              minutesHTML += "<li class='' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
+              minutesHTML += "<li class='#{classes}' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
 
       curMinute.add 1, 'minutes'
 
@@ -175,7 +193,7 @@ class Momentous
         curHourDate = curHour.format @dateFormat
         classes = ''
 
-        if @dateRangeMode && @granularity == 'hours'
+        if @dateRangeMode
           startDate = @controller.start.date().format('MM-DD-YYYY, HH:00')
           endDate = @controller.end.date().format('MM-DD-YYYY, HH:00')
           calendarDate = moment curHour
@@ -224,7 +242,7 @@ class Momentous
         curHourDate = curHour.format @dateFormat
         classes = ''
 
-        if @dateRangeMode && @granularity == 'hours'
+        if @dateRangeMode
           startDate = @controller.start.date().format('MM-DD-YYYY, HH:00')
           endDate = @controller.end.date().format('MM-DD-YYYY, HH:00')
           calendarDate = moment curHour
@@ -473,23 +491,34 @@ class Momentous
       amount = 12
 
     if target.hasClass 'prev'
+      # resetting the day/hour/minute amount when in dateRangeMode to prevent options
+      # from all being in disabled class after directionClickHandler called
       if @dateRangeMode
         if @curView == @daysView
           @setViewDate moment(@viewDate).subtract(amount, span).date(1).minutes(0)
         else if @curView == @hoursView || @curView == @hoursViewPeriod
           @setViewDate moment(@viewDate).subtract(amount, span).hour(0).minutes(0)
+        else if @curView == @minutesView
+          @setViewDate moment(@viewDate).subtract(amount, span).minutes(0)
         else
           @setViewDate moment(@viewDate).subtract(amount, span)
+
       else
         @setViewDate moment(@viewDate).subtract(amount, span)
+
     if target.hasClass 'next'
+      # resetting the day/hour/minute amount when in dateRangeMode to prevent options
+      # from all being in disabled class after directionClickHandler called
       if @dateRangeMode
         if @curView == @daysView
           @setViewDate moment(@viewDate).add(amount, span).date(1).minutes(0)
         else if @curView == @hoursView || @curView == @hoursViewPeriod
           @setViewDate moment(@viewDate).add(amount, span).hour(0).minutes(0)
+        else if @curView == @minutesView
+          @setViewDate moment(@viewDate).add(amount, span).minutes(0)
         else
           @setViewDate moment(@viewDate).add(amount, span)
+
       else
         @setViewDate moment(@viewDate).add(amount, span)
 
@@ -562,6 +591,8 @@ class DateRangeController
         @end.setDate moment(startDate).add(1, 'weeks')
       if @granularity == 'hours'
         @end.setDate moment(startDate).add(1, 'hours')
+      if @granularity == 'minutes'
+        @end.setDate moment(startDate).add(1, 'minutes')
 
     @end.show()
 
@@ -575,6 +606,8 @@ class DateRangeController
         @start.setDate moment(endDate).subtract(1, 'weeks')
       if @granularity == 'hours'
         @start.setDate moment(endDate).subtract(1, 'hours')
+      if @granularity == 'minutes'
+        @start.setDate moment(endDate).subtract(1, 'minutes')
 
 window.Momentous = (placeholder, options={}) ->
   if options.dateRangeMode is true

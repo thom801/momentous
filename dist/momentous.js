@@ -73,7 +73,7 @@
         this.granularity = this.options.granularity;
       }
       if (this.dateRangeMode && this === this.controller.start) {
-        if (this.granularity === 'hours') {
+        if (this.granularity === 'hours' || this.granularity === 'minutes') {
           this.curDate.minutes(0);
         }
       }
@@ -81,7 +81,7 @@
         if (this.granularity === 'days') {
           this.curDate.add(1, 'weeks');
         }
-        if (this.granularity === 'hours') {
+        if (this.granularity === 'hours' || this.granularity === 'minutes') {
           this.curDate.add(3, 'hours').minutes(0);
         }
       }
@@ -149,7 +149,7 @@
     };
 
     Momentous.prototype.showMinutes = function() {
-      var curMinute, curMinuteDate, i, minute, minuteGran, minuteNum, minutesContainer, minutesHTML, selectedHour, _i;
+      var calendarDate, classes, curMinute, curMinuteDate, endDate, i, minute, minuteGran, minuteNum, minutesContainer, minutesHTML, selectedHour, startDate, _i;
       this.curView.hide();
       if (this.timeFormat === 12) {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, h:mm a';
@@ -172,14 +172,36 @@
         minutesContainer = this.minutesView.find('ul');
         minuteNum = curMinute.format(':mm');
         curMinuteDate = curMinute.format(this.dateFormat);
+        classes = '';
         minuteGran = [1, 5, 10, 15, 20, 30];
         for (i in minuteGran) {
           if (minuteGran[i] === this.minuteGranularity) {
             if (minute % this.minuteGranularity === 0) {
+              if (this.dateRangeMode) {
+                startDate = this.controller.start.date().format('MM-DD-YYYY, HH:mm');
+                endDate = this.controller.end.date().format('MM-DD-YYYY, HH:mm');
+                calendarDate = moment(curMinute);
+                calendarDate = calendarDate.format('MM-DD-YYYY, HH:mm');
+                if (startDate === calendarDate) {
+                  classes += ' startDate';
+                }
+                if (endDate === calendarDate && endDate > startDate) {
+                  classes += ' endDate';
+                }
+                if (calendarDate > startDate && calendarDate < endDate) {
+                  classes += ' inDateRange';
+                }
+                if (calendarDate < startDate) {
+                  classes += ' disabled';
+                }
+              }
               if (minute === 0) {
-                minutesHTML += "<li class='active' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
+                if (!this.dateRangeMode) {
+                  classes += ' active';
+                }
+                minutesHTML += "<li class='" + classes + "' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
               } else {
-                minutesHTML += "<li class='' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
+                minutesHTML += "<li class='" + classes + "' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
               }
             }
           }
@@ -206,7 +228,7 @@
           trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
           classes = '';
-          if (this.dateRangeMode && this.granularity === 'hours') {
+          if (this.dateRangeMode) {
             startDate = this.controller.start.date().format('MM-DD-YYYY, HH:00');
             endDate = this.controller.end.date().format('MM-DD-YYYY, HH:00');
             calendarDate = moment(curHour);
@@ -249,7 +271,7 @@
           trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
           classes = '';
-          if (this.dateRangeMode && this.granularity === 'hours') {
+          if (this.dateRangeMode) {
             startDate = this.controller.start.date().format('MM-DD-YYYY, HH:00');
             endDate = this.controller.end.date().format('MM-DD-YYYY, HH:00');
             calendarDate = moment(curHour);
@@ -525,6 +547,8 @@
             this.setViewDate(moment(this.viewDate).subtract(amount, span).date(1).minutes(0));
           } else if (this.curView === this.hoursView || this.curView === this.hoursViewPeriod) {
             this.setViewDate(moment(this.viewDate).subtract(amount, span).hour(0).minutes(0));
+          } else if (this.curView === this.minutesView) {
+            this.setViewDate(moment(this.viewDate).subtract(amount, span).minutes(0));
           } else {
             this.setViewDate(moment(this.viewDate).subtract(amount, span));
           }
@@ -538,6 +562,8 @@
             return this.setViewDate(moment(this.viewDate).add(amount, span).date(1).minutes(0));
           } else if (this.curView === this.hoursView || this.curView === this.hoursViewPeriod) {
             return this.setViewDate(moment(this.viewDate).add(amount, span).hour(0).minutes(0));
+          } else if (this.curView === this.minutesView) {
+            return this.setViewDate(moment(this.viewDate).add(amount, span).minutes(0));
           } else {
             return this.setViewDate(moment(this.viewDate).add(amount, span));
           }
@@ -644,6 +670,9 @@
         if (this.granularity === 'hours') {
           this.end.setDate(moment(startDate).add(1, 'hours'));
         }
+        if (this.granularity === 'minutes') {
+          this.end.setDate(moment(startDate).add(1, 'minutes'));
+        }
       }
       return this.end.show();
     };
@@ -658,7 +687,10 @@
           this.start.setDate(moment(endDate).subtract(1, 'weeks'));
         }
         if (this.granularity === 'hours') {
-          return this.start.setDate(moment(endDate).subtract(1, 'hours'));
+          this.start.setDate(moment(endDate).subtract(1, 'hours'));
+        }
+        if (this.granularity === 'minutes') {
+          return this.start.setDate(moment(endDate).subtract(1, 'minutes'));
         }
       }
     };

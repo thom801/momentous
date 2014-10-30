@@ -275,3 +275,24 @@
 .momentous-container .momentous-dropdown .minutes-view ul li:not(.active):hover {
   background: #efefef;
 }
+.momentous-container .momentous-dropdown .minutes-view ul li.startDate {
+  background: #222;
+  color: #fff;
+  border-radius: 4px 0 0 4px;
+}
+.momentous-container .momentous-dropdown .minutes-view ul li.endDate {
+  background: #222;
+  color: #fff;
+  border-radius: 0 4px 4px 0;
+}
+.momentous-container .momentous-dropdown .minutes-view ul li.inDateRange {
+  background: #eee;
+  border-radius: 0;
+}
+.momentous-container .momentous-dropdown .minutes-view ul li.disabled {
+  color: #bbb;
+  border-radius: 0;
+}
+.momentous-container .momentous-dropdown .minutes-view ul li.disabled:hover {
+  background: #fff;
+}
