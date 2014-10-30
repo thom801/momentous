@@ -119,8 +119,10 @@
   border-bottom: solid 1px #fff;
 }
 .momentous-container .momentous-dropdown table tr:not(.week) td.disabled {
+  background: #fff;
   color: #bbb;
   border-radius: 0;
+  cursor: default;
 }
 .momentous-container .momentous-dropdown table tr:not(.week) td.disabled:hover {
   background: #fff;
@@ -204,8 +206,10 @@
   border-radius: 0;
 }
 .momentous-container .momentous-dropdown .hours-view ul li.disabled {
+  background: #fff;
   color: #bbb;
   border-radius: 0;
+  cursor: default;
 }
 .momentous-container .momentous-dropdown .hours-view ul li.disabled:hover {
   background: #fff;
@@ -249,8 +253,10 @@
   border-radius: 0;
 }
 .momentous-container .momentous-dropdown .hours-view-period ul li.disabled {
+  background: #fff;
   color: #bbb;
   border-radius: 0;
+  cursor: default;
 }
 .momentous-container .momentous-dropdown .hours-view-period ul li.disabled:hover {
   background: #fff;
@@ -290,8 +296,10 @@
   border-radius: 0;
 }
 .momentous-container .momentous-dropdown .minutes-view ul li.disabled {
+  background: #fff;
   color: #bbb;
   border-radius: 0;
+  cursor: default;
 }
 .momentous-container .momentous-dropdown .minutes-view ul li.disabled:hover {
   background: #fff;

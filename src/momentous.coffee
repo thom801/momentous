@@ -131,6 +131,7 @@ class Momentous
       # trueMinute = parseInt @today.format 'mm'
       curMinuteDate = curMinute.format @dateFormat
       classes = ''
+      disabled = false
 
       minuteGran = [1, 5, 10, 15, 20, 30]
 
@@ -140,11 +141,9 @@ class Momentous
 
             if @dateRangeMode
               startDate = @controller.start.date().format('MM-DD-YYYY, HH:mm')
-              # console.log startDate
               endDate = @controller.end.date().format('MM-DD-YYYY, HH:mm')
               calendarDate = moment curMinute
               calendarDate = calendarDate.format 'MM-DD-YYYY, HH:mm'
-              # console.log calendarDate
               # Apply class to start date
               if startDate == calendarDate
                 classes += ' startDate'
@@ -154,15 +153,16 @@ class Momentous
               # Apply class to days within date range
               if calendarDate > startDate and calendarDate < endDate
                 classes += ' inDateRange'
-              if calendarDate < startDate
+              if calendarDate < startDate && this is @controller.end || calendarDate < @today.format('MM-DD-YYYY, HH:00')
                 classes += ' disabled'
+                disabled = true
 
             if minute is 0
               if !@dateRangeMode
                 classes += ' active'
-              minutesHTML += "<li class='#{classes}' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
+              minutesHTML += "<li class='#{classes}' data-date='#{curMinuteDate}' data-isdisabled='#{disabled}'>#{selectedHour}#{minuteNum}</li>"
             else
-              minutesHTML += "<li class='#{classes}' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
+              minutesHTML += "<li class='#{classes}' data-date='#{curMinuteDate}' data-isdisabled='#{disabled}'>#{selectedHour}#{minuteNum}</li>"
 
       curMinute.add 1, 'minutes'
 
@@ -192,6 +192,7 @@ class Momentous
         trueHour = parseInt @today.format 'H'
         curHourDate = curHour.format @dateFormat
         classes = ''
+        disabled = false
 
         if @dateRangeMode
           startDate = @controller.start.date().format('MM-DD-YYYY, HH:00')
@@ -207,15 +208,16 @@ class Momentous
           # Apply class to days within date range
           if calendarDate > startDate and calendarDate < endDate
             classes += ' inDateRange'
-          if calendarDate < startDate
+          if calendarDate < startDate && this is @controller.end || calendarDate < @today.format('MM-DD-YYYY, HH:00')
             classes += ' disabled'
+            disabled = true
 
         if hour is trueHour
           if !@dateRangeMode
             classes += ' active'
-          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}' data-isdisabled='#{disabled}'><span>#{hourNum}</span></li>"
         else
-          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}' data-isdisabled='#{disabled}'><span>#{hourNum}</span></li>"
 
         curHour.add 1, 'hours'
 
@@ -241,6 +243,7 @@ class Momentous
         trueHour = parseInt @today.format 'H'
         curHourDate = curHour.format @dateFormat
         classes = ''
+        disabled = false
 
         if @dateRangeMode
           startDate = @controller.start.date().format('MM-DD-YYYY, HH:00')
@@ -256,15 +259,16 @@ class Momentous
           # Apply class to days within date range
           if calendarDate > startDate and calendarDate < endDate
             classes += ' inDateRange'
-          if calendarDate < startDate
+          if calendarDate < startDate && this is @controller.end || calendarDate < @today.format('MM-DD-YYYY, HH:00')
             classes += ' disabled'
+            disabled = true
 
         if hour is trueHour
           if !@dateRangeMode
             classes += ' active'
-          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'>#{hourNum}:00</li>"
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}' data-isdisabled='#{disabled}'>#{hourNum}:00</li>"
         else
-          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'>#{hourNum}:00</li>"
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}' data-isdisabled='#{disabled}'>#{hourNum}:00</li>"
 
         curHour.add 1, 'hours'
 
@@ -316,10 +320,11 @@ class Momentous
           # # Apply class to days within date range
           if calendarDate > startDate and calendarDate < endDate
             classes += ' inDateRange'
-          if calendarDate < startDate
+          if calendarDate < startDate && this is @controller.end || calendarDate < @today.format('MM-DD-YYYY')
             classes += ' disabled'
+            disabled = true
 
-        daysHTML += "<td class='#{classes}' data-date='#{curDayDate}'>#{curDay.date()}</td>"
+        daysHTML += "<td class='#{classes}' data-date='#{curDayDate}' data-isdisabled='#{disabled}'>#{curDay.date()}</td>"
 
       weekHTML = "<tr class='#{weekClasses}'>#{daysHTML}</tr>"
 
@@ -386,19 +391,29 @@ class Momentous
 
   minuteClickHandler: (event) =>
     target = $ event.currentTarget
-    @setDate target.data 'date'
-    @hide()
+    newDate = target.data 'date'
+    isDisabled = target.data 'isdisabled'
+    if isDisabled == true
+      console.log("This date is not selectable")
+    else
+      @setDate target.data 'date'
+      @hide()
 
   hourClickHandler: (event) =>
     target = $ event.currentTarget
     newDate = target.data 'date'
+    newDate = target.data 'date'
+    isDisabled = target.data 'isdisabled'
     if @granularity == 'hours'
       @setDate moment(newDate, @dateFormat)
       @hide()
     else
       if @dateRangeMode
-        @setViewDate moment(newDate, @dateFormat).minutes(0)
-        @showMinutes()
+        if isDisabled == true
+          console.log("This date is not selectable")
+        else
+          @setViewDate moment(newDate, @dateFormat).minutes(0)
+          @showMinutes()
       else
         @setViewDate moment(newDate, @dateFormat)
         @showMinutes()
@@ -406,13 +421,17 @@ class Momentous
   dayClickHandler: (event) =>
     target = $ event.currentTarget
     newDate = target.data 'date'
+    isDisabled = target.data 'isdisabled'
     if @granularity == 'days'
       @setDate moment(newDate, @dateFormat)
       @hide()
     else
       if @dateRangeMode
-        @setViewDate moment(newDate, @dateFormat).minutes(0)
-        @showHours()
+        if isDisabled == true
+          console.log("This date is not selectable")
+        else
+          @setViewDate moment(newDate, @dateFormat).minutes(0)
+          @showHours()
       else
         @setViewDate moment(newDate, @dateFormat)
         @showHours()
@@ -491,36 +510,10 @@ class Momentous
       amount = 12
 
     if target.hasClass 'prev'
-      # resetting the day/hour/minute amount when in dateRangeMode to prevent options
-      # from all being in disabled class after directionClickHandler called
-      if @dateRangeMode
-        if @curView == @daysView
-          @setViewDate moment(@viewDate).subtract(amount, span).date(1).minutes(0)
-        else if @curView == @hoursView || @curView == @hoursViewPeriod
-          @setViewDate moment(@viewDate).subtract(amount, span).hour(0).minutes(0)
-        else if @curView == @minutesView
-          @setViewDate moment(@viewDate).subtract(amount, span).minutes(0)
-        else
-          @setViewDate moment(@viewDate).subtract(amount, span)
-
-      else
-        @setViewDate moment(@viewDate).subtract(amount, span)
+      @setViewDate moment(@viewDate).subtract(amount, span)
 
     if target.hasClass 'next'
-      # resetting the day/hour/minute amount when in dateRangeMode to prevent options
-      # from all being in disabled class after directionClickHandler called
-      if @dateRangeMode
-        if @curView == @daysView
-          @setViewDate moment(@viewDate).add(amount, span).date(1).minutes(0)
-        else if @curView == @hoursView || @curView == @hoursViewPeriod
-          @setViewDate moment(@viewDate).add(amount, span).hour(0).minutes(0)
-        else if @curView == @minutesView
-          @setViewDate moment(@viewDate).add(amount, span).minutes(0)
-        else
-          @setViewDate moment(@viewDate).add(amount, span)
-
-      else
-        @setViewDate moment(@viewDate).add(amount, span)
+      @setViewDate moment(@viewDate).add(amount, span)
 
   setDate: (date) =>
     @curDate = moment date, @dateFormat

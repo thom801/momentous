@@ -149,7 +149,7 @@
     };
 
     Momentous.prototype.showMinutes = function() {
-      var calendarDate, classes, curMinute, curMinuteDate, endDate, i, minute, minuteGran, minuteNum, minutesContainer, minutesHTML, selectedHour, startDate, _i;
+      var calendarDate, classes, curMinute, curMinuteDate, disabled, endDate, i, minute, minuteGran, minuteNum, minutesContainer, minutesHTML, selectedHour, startDate, _i;
       this.curView.hide();
       if (this.timeFormat === 12) {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, h:mm a';
@@ -173,6 +173,7 @@
         minuteNum = curMinute.format(':mm');
         curMinuteDate = curMinute.format(this.dateFormat);
         classes = '';
+        disabled = false;
         minuteGran = [1, 5, 10, 15, 20, 30];
         for (i in minuteGran) {
           if (minuteGran[i] === this.minuteGranularity) {
@@ -191,17 +192,18 @@
                 if (calendarDate > startDate && calendarDate < endDate) {
                   classes += ' inDateRange';
                 }
-                if (calendarDate < startDate) {
+                if (calendarDate < startDate && this === this.controller.end || calendarDate < this.today.format('MM-DD-YYYY, HH:00')) {
                   classes += ' disabled';
+                  disabled = true;
                 }
               }
               if (minute === 0) {
                 if (!this.dateRangeMode) {
                   classes += ' active';
                 }
-                minutesHTML += "<li class='" + classes + "' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
+                minutesHTML += "<li class='" + classes + "' data-date='" + curMinuteDate + "' data-isdisabled='" + disabled + "'>" + selectedHour + minuteNum + "</li>";
               } else {
-                minutesHTML += "<li class='" + classes + "' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
+                minutesHTML += "<li class='" + classes + "' data-date='" + curMinuteDate + "' data-isdisabled='" + disabled + "'>" + selectedHour + minuteNum + "</li>";
               }
             }
           }
@@ -213,7 +215,7 @@
     };
 
     Momentous.prototype.showHours = function() {
-      var calendarDate, classes, curHour, curHourDate, endDate, hour, hourNum, hoursContainer, hoursHTML, startDate, trueHour, _i, _j;
+      var calendarDate, classes, curHour, curHourDate, disabled, endDate, hour, hourNum, hoursContainer, hoursHTML, startDate, trueHour, _i, _j;
       this.curView.hide();
       if (this.timeFormat === 12) {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, h:mm a';
@@ -228,6 +230,7 @@
           trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
           classes = '';
+          disabled = false;
           if (this.dateRangeMode) {
             startDate = this.controller.start.date().format('MM-DD-YYYY, HH:00');
             endDate = this.controller.end.date().format('MM-DD-YYYY, HH:00');
@@ -242,17 +245,18 @@
             if (calendarDate > startDate && calendarDate < endDate) {
               classes += ' inDateRange';
             }
-            if (calendarDate < startDate) {
+            if (calendarDate < startDate && this === this.controller.end || calendarDate < this.today.format('MM-DD-YYYY, HH:00')) {
               classes += ' disabled';
+              disabled = true;
             }
           }
           if (hour === trueHour) {
             if (!this.dateRangeMode) {
               classes += ' active';
             }
-            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "' data-isdisabled='" + disabled + "'><span>" + hourNum + "</span></li>";
           } else {
-            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "' data-isdisabled='" + disabled + "'><span>" + hourNum + "</span></li>";
           }
           curHour.add(1, 'hours');
         }
@@ -271,6 +275,7 @@
           trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
           classes = '';
+          disabled = false;
           if (this.dateRangeMode) {
             startDate = this.controller.start.date().format('MM-DD-YYYY, HH:00');
             endDate = this.controller.end.date().format('MM-DD-YYYY, HH:00');
@@ -285,17 +290,18 @@
             if (calendarDate > startDate && calendarDate < endDate) {
               classes += ' inDateRange';
             }
-            if (calendarDate < startDate) {
+            if (calendarDate < startDate && this === this.controller.end || calendarDate < this.today.format('MM-DD-YYYY, HH:00')) {
               classes += ' disabled';
+              disabled = true;
             }
           }
           if (hour === trueHour) {
             if (!this.dateRangeMode) {
               classes += ' active';
             }
-            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "'>" + hourNum + ":00</li>";
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "' data-isdisabled='" + disabled + "'>" + hourNum + ":00</li>";
           } else {
-            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "'>" + hourNum + ":00</li>";
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "' data-isdisabled='" + disabled + "'>" + hourNum + ":00</li>";
           }
           curHour.add(1, 'hours');
         }
@@ -325,7 +331,7 @@
             weekClasses = 'week';
           }
           [0, 1, 2, 3, 4, 5, 6].map(function(dow) {
-            var calendarDate, classes, curDay, curDayDate, endDate, startDate;
+            var calendarDate, classes, curDay, curDayDate, disabled, endDate, startDate;
             curDay = moment(weekStart.day(_this.weekStart + dow).format(_this.dateFormat), _this.dateFormat);
             curDayDate = curDay.format(_this.dateFormat);
             classes = 'day';
@@ -353,11 +359,12 @@
               if (calendarDate > startDate && calendarDate < endDate) {
                 classes += ' inDateRange';
               }
-              if (calendarDate < startDate) {
+              if (calendarDate < startDate && _this === _this.controller.end || calendarDate < _this.today.format('MM-DD-YYYY')) {
                 classes += ' disabled';
+                disabled = true;
               }
             }
-            return daysHTML += "<td class='" + classes + "' data-date='" + curDayDate + "'>" + (curDay.date()) + "</td>";
+            return daysHTML += "<td class='" + classes + "' data-date='" + curDayDate + "' data-isdisabled='" + disabled + "'>" + (curDay.date()) + "</td>";
           });
           weekHTML = "<tr class='" + weekClasses + "'>" + daysHTML + "</tr>";
           return calHTML += weekHTML;
@@ -418,23 +425,35 @@
     };
 
     Momentous.prototype.minuteClickHandler = function(event) {
-      var target;
+      var isDisabled, newDate, target;
       target = $(event.currentTarget);
-      this.setDate(target.data('date'));
-      return this.hide();
+      newDate = target.data('date');
+      isDisabled = target.data('isdisabled');
+      if (isDisabled === true) {
+        return console.log("This date is not selectable");
+      } else {
+        this.setDate(target.data('date'));
+        return this.hide();
+      }
     };
 
     Momentous.prototype.hourClickHandler = function(event) {
-      var newDate, target;
+      var isDisabled, newDate, target;
       target = $(event.currentTarget);
       newDate = target.data('date');
+      newDate = target.data('date');
+      isDisabled = target.data('isdisabled');
       if (this.granularity === 'hours') {
         this.setDate(moment(newDate, this.dateFormat));
         return this.hide();
       } else {
         if (this.dateRangeMode) {
-          this.setViewDate(moment(newDate, this.dateFormat).minutes(0));
-          return this.showMinutes();
+          if (isDisabled === true) {
+            return console.log("This date is not selectable");
+          } else {
+            this.setViewDate(moment(newDate, this.dateFormat).minutes(0));
+            return this.showMinutes();
+          }
         } else {
           this.setViewDate(moment(newDate, this.dateFormat));
           return this.showMinutes();
@@ -443,16 +462,21 @@
     };
 
     Momentous.prototype.dayClickHandler = function(event) {
-      var newDate, target;
+      var isDisabled, newDate, target;
       target = $(event.currentTarget);
       newDate = target.data('date');
+      isDisabled = target.data('isdisabled');
       if (this.granularity === 'days') {
         this.setDate(moment(newDate, this.dateFormat));
         return this.hide();
       } else {
         if (this.dateRangeMode) {
-          this.setViewDate(moment(newDate, this.dateFormat).minutes(0));
-          return this.showHours();
+          if (isDisabled === true) {
+            return console.log("This date is not selectable");
+          } else {
+            this.setViewDate(moment(newDate, this.dateFormat).minutes(0));
+            return this.showHours();
+          }
         } else {
           this.setViewDate(moment(newDate, this.dateFormat));
           return this.showHours();
@@ -542,34 +566,10 @@
         amount = 12;
       }
       if (target.hasClass('prev')) {
-        if (this.dateRangeMode) {
-          if (this.curView === this.daysView) {
-            this.setViewDate(moment(this.viewDate).subtract(amount, span).date(1).minutes(0));
-          } else if (this.curView === this.hoursView || this.curView === this.hoursViewPeriod) {
-            this.setViewDate(moment(this.viewDate).subtract(amount, span).hour(0).minutes(0));
-          } else if (this.curView === this.minutesView) {
-            this.setViewDate(moment(this.viewDate).subtract(amount, span).minutes(0));
-          } else {
-            this.setViewDate(moment(this.viewDate).subtract(amount, span));
-          }
-        } else {
-          this.setViewDate(moment(this.viewDate).subtract(amount, span));
-        }
+        this.setViewDate(moment(this.viewDate).subtract(amount, span));
       }
       if (target.hasClass('next')) {
-        if (this.dateRangeMode) {
-          if (this.curView === this.daysView) {
-            return this.setViewDate(moment(this.viewDate).add(amount, span).date(1).minutes(0));
-          } else if (this.curView === this.hoursView || this.curView === this.hoursViewPeriod) {
-            return this.setViewDate(moment(this.viewDate).add(amount, span).hour(0).minutes(0));
-          } else if (this.curView === this.minutesView) {
-            return this.setViewDate(moment(this.viewDate).add(amount, span).minutes(0));
-          } else {
-            return this.setViewDate(moment(this.viewDate).add(amount, span));
-          }
-        } else {
-          return this.setViewDate(moment(this.viewDate).add(amount, span));
-        }
+        return this.setViewDate(moment(this.viewDate).add(amount, span));
       }
     };
 
