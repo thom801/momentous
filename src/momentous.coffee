@@ -170,7 +170,6 @@ class Momentous
       curHour = moment(@viewDate).hour(0).minute(0)
 
       for hour in [0..23]
-        hoursContainer = @hoursViewPeriod.find 'ul'
         hourNum = curHour.format 'h a'
         trueHour = parseInt @today.format 'H'
         curHourDate = curHour.format @dateFormat
@@ -180,16 +179,18 @@ class Momentous
           startDate = @controller.start.date().format('MM-DD-YYYY, HH:00')
           endDate = @controller.end.date().format('MM-DD-YYYY, HH:00')
           calendarDate = moment curHour
-          calendarDateFormat = calendarDate.format 'MM-DD-YYYY, HH:00'
+          calendarDate = calendarDate.format 'MM-DD-YYYY, HH:00'
           # Apply class to start date
-          if startDate == calendarDateFormat
+          if startDate == calendarDate
             classes += ' startDate'
           # Apply class to end date
-          if endDate == calendarDateFormat && endDate > startDate
+          if endDate == calendarDate && endDate > startDate
             classes += ' endDate'
           # Apply class to days within date range
-          if calendarDateFormat > startDate and calendarDateFormat < endDate
+          if calendarDate > startDate and calendarDate < endDate
             classes += ' inDateRange'
+          if calendarDate < startDate
+            classes += ' disabled'
 
         if hour is trueHour
           if !@dateRangeMode
@@ -221,11 +222,31 @@ class Momentous
         hourNum = curHour.format 'HH'
         trueHour = parseInt @today.format 'H'
         curHourDate = curHour.format @dateFormat
+        classes = ''
+
+        if @dateRangeMode && @granularity == 'hours'
+          startDate = @controller.start.date().format('MM-DD-YYYY, HH:00')
+          endDate = @controller.end.date().format('MM-DD-YYYY, HH:00')
+          calendarDate = moment curHour
+          calendarDate = calendarDate.format 'MM-DD-YYYY, HH:00'
+          # Apply class to start date
+          if startDate == calendarDate
+            classes += ' startDate'
+          # Apply class to end date
+          if endDate == calendarDate && endDate > startDate
+            classes += ' endDate'
+          # Apply class to days within date range
+          if calendarDate > startDate and calendarDate < endDate
+            classes += ' inDateRange'
+          if calendarDate < startDate
+            classes += ' disabled'
 
         if hour is trueHour
-          hoursHTML += "<li class='active' data-date='#{curHourDate}'>#{hourNum}:00</li>"
+          if !@dateRangeMode
+            classes += ' active'
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'>#{hourNum}:00</li>"
         else
-          hoursHTML += "<li class='' data-date='#{curHourDate}'>#{hourNum}:00</li>"
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'>#{hourNum}:00</li>"
 
         curHour.add 1, 'hours'
 
@@ -267,16 +288,18 @@ class Momentous
           startDate = @controller.start.date().format('MM-DD-YYYY')
           endDate = @controller.end.date().format('MM-DD-YYYY')
           calendarDate = moment curDay
-          calendarDateFormat = calendarDate.format 'MM-DD-YYYY'
+          calendarDate = calendarDate.format 'MM-DD-YYYY'
           # Apply class to start date
-          if startDate == calendarDateFormat
+          if startDate == calendarDate
             classes += ' startDate'
           # Apply class to end date
-          if endDate == calendarDateFormat && endDate > startDate
+          if endDate == calendarDate && endDate > startDate
             classes += ' endDate'
           # # Apply class to days within date range
-          if calendarDateFormat > startDate and calendarDateFormat < endDate
+          if calendarDate > startDate and calendarDate < endDate
             classes += ' inDateRange'
+          if calendarDate < startDate
+            classes += ' disabled'
 
         daysHTML += "<td class='#{classes}' data-date='#{curDayDate}'>#{curDay.date()}</td>"
 
@@ -355,8 +378,12 @@ class Momentous
       @setDate moment(newDate, @dateFormat)
       @hide()
     else
-      @setViewDate moment(newDate, @dateFormat)
-      @showMinutes()
+      if @dateRangeMode
+        @setViewDate moment(newDate, @dateFormat).minutes(0)
+        @showMinutes()
+      else
+        @setViewDate moment(newDate, @dateFormat)
+        @showMinutes()
 
   dayClickHandler: (event) =>
     target = $ event.currentTarget
@@ -365,8 +392,12 @@ class Momentous
       @setDate moment(newDate, @dateFormat)
       @hide()
     else
-      @setViewDate moment(newDate, @dateFormat)
-      @showHours()
+      if @dateRangeMode
+        @setViewDate moment(newDate, @dateFormat).minutes(0)
+        @showHours()
+      else
+        @setViewDate moment(newDate, @dateFormat)
+        @showHours()
 
   weekClickHandler: (event) =>
     target = $ event.currentTarget
@@ -442,9 +473,25 @@ class Momentous
       amount = 12
 
     if target.hasClass 'prev'
-      @setViewDate moment(@viewDate).subtract(amount, span)
+      if @dateRangeMode
+        if @curView == @daysView
+          @setViewDate moment(@viewDate).subtract(amount, span).date(1).minutes(0)
+        else if @curView == @hoursView || @curView == @hoursViewPeriod
+          @setViewDate moment(@viewDate).subtract(amount, span).hour(0).minutes(0)
+        else
+          @setViewDate moment(@viewDate).subtract(amount, span)
+      else
+        @setViewDate moment(@viewDate).subtract(amount, span)
     if target.hasClass 'next'
-      @setViewDate moment(@viewDate).add(amount, span)
+      if @dateRangeMode
+        if @curView == @daysView
+          @setViewDate moment(@viewDate).add(amount, span).date(1).minutes(0)
+        else if @curView == @hoursView || @curView == @hoursViewPeriod
+          @setViewDate moment(@viewDate).add(amount, span).hour(0).minutes(0)
+        else
+          @setViewDate moment(@viewDate).add(amount, span)
+      else
+        @setViewDate moment(@viewDate).add(amount, span)
 
   setDate: (date) =>
     @curDate = moment date, @dateFormat
@@ -473,19 +520,12 @@ class Momentous
       opacity: 0
     })
 
-  difference: (startDay, curDay) =>
-    diffMonth = startDay.diff curDay, 'months'
-    diffHours = startDay.diff curDay, 'hours'
-    diffDivide = diffHours / 24
-    diffHourFinal = Math.round(diffDivide)
-    diffMonth + diffHourFinal
-
-
-
   toggle: =>
     if @visible then @hide() else @show()
 
   date: => moment @curDate
+
+  getDate: => moment @curDate
 
   jsDate: => @curDate.toDate()
 

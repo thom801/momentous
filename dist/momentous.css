@@ -118,6 +118,13 @@
   border-radius: 0;
   border-bottom: solid 1px #fff;
 }
+.momentous-container .momentous-dropdown table tr:not(.week) td.disabled {
+  color: #bbb;
+  border-radius: 0;
+}
+.momentous-container .momentous-dropdown table tr:not(.week) td.disabled:hover {
+  background: #fff;
+}
 .momentous-container .momentous-dropdown table tr.week {
   border-radius: none;
 }
@@ -196,6 +203,13 @@
   background: #eee;
   border-radius: 0;
 }
+.momentous-container .momentous-dropdown .hours-view ul li.disabled {
+  color: #bbb;
+  border-radius: 0;
+}
+.momentous-container .momentous-dropdown .hours-view ul li.disabled:hover {
+  background: #fff;
+}
 .momentous-container .momentous-dropdown .hours-view-period ul {
   list-style: none;
   padding: 14px 0 0 0px;
@@ -233,6 +247,13 @@
 .momentous-container .momentous-dropdown .hours-view-period ul li.inDateRange {
   background: #eee;
   border-radius: 0;
+}
+.momentous-container .momentous-dropdown .hours-view-period ul li.disabled {
+  color: #bbb;
+  border-radius: 0;
+}
+.momentous-container .momentous-dropdown .hours-view-period ul li.disabled:hover {
+  background: #fff;
 }
 .momentous-container .momentous-dropdown .minutes-view ul {
   list-style: none;
