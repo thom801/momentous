@@ -24,31 +24,33 @@ class Momentous
 
     @placeholder.addClass 'momentous-container'
 
-    @input.bind 'click', @toggle
-    @calButton.bind 'click', @toggle
-    @dropdown.find('.dir-button').bind 'click', @directionClickHandler
-    @viewButton.bind 'click', @viewClickHandler
+    @input.on 'click', @toggle
+    @calButton.on 'click', @toggle
+    @dropdown.find('.dir-button').on 'click', @directionClickHandler
+    @viewButton.on 'click', @viewClickHandler
 
   init: =>
     # defaults
-    if @dateRangeMode
-      @curDate     = moment(moment().format(@dateFormat), @dateFormat)
-      @viewDate    = moment(moment().format(@dateFormat), @dateFormat)
-      @today       = moment(moment().format(@dateFormat), @dateFormat)
-    else
-      @curDate     = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
-      @viewDate    = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
-      @today       = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+    @curDate     = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+    @viewDate    = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
+    @today       = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm')
     @weekStart   = 1 # Monday
     @granularity = 'days' # minutes, hours, days, weeks, months, or years
-
-    if @dateRangeMode and this is @controller.end
-      @curDate.add(1, 'weeks')
 
     if @options.date then @curDate = moment(@options.date, @dateFormat)
     if @options.weekStart in [0,1] then @weekStart = @options.weekStart
     if @options.granularity then @granularity = @options.granularity
     #if @options.language then moment.lang @options.language
+
+    if @dateRangeMode and this is @controller.start
+      if @granularity == 'hours' || @granularity == 'minutes'
+        @curDate.minutes(0)
+
+    if @dateRangeMode and this is @controller.end
+      if @granularity == 'days'
+        @curDate.add(1, 'weeks')
+      if @granularity == 'hours' || @granularity == 'minutes'
+        @curDate.add(3, 'hours').minutes(0)
 
     @curView.show()
 
@@ -128,22 +130,45 @@ class Momentous
       minuteNum = curMinute.format ':mm'
       # trueMinute = parseInt @today.format 'mm'
       curMinuteDate = curMinute.format @dateFormat
+      classes = ''
+      disabled = false
 
       minuteGran = [1, 5, 10, 15, 20, 30]
 
       for i of minuteGran
         if minuteGran[i] == @minuteGranularity
           if minute % @minuteGranularity == 0
+
+            if @dateRangeMode
+              startDate = @controller.start.date().format('MM-DD-YYYY, HH:mm')
+              endDate = @controller.end.date().format('MM-DD-YYYY, HH:mm')
+              calendarDate = moment curMinute
+              calendarDate = calendarDate.format 'MM-DD-YYYY, HH:mm'
+              # Apply class to start date
+              if startDate == calendarDate
+                classes += ' startDate'
+              # Apply class to end date
+              if endDate == calendarDate && endDate > startDate
+                classes += ' endDate'
+              # Apply class to days within date range
+              if calendarDate > startDate and calendarDate < endDate
+                classes += ' inDateRange'
+              if calendarDate < startDate && this is @controller.end || calendarDate < @today.format('MM-DD-YYYY, HH:00')
+                classes += ' disabled'
+                disabled = true
+
             if minute is 0
-              minutesHTML += "<li class='active' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
+              if !@dateRangeMode
+                classes += ' active'
+              minutesHTML += "<li class='#{classes}' data-date='#{curMinuteDate}' data-isdisabled='#{disabled}'>#{selectedHour}#{minuteNum}</li>"
             else
-              minutesHTML += "<li class='' data-date='#{curMinuteDate}'>#{selectedHour}#{minuteNum}</li>"
+              minutesHTML += "<li class='#{classes}' data-date='#{curMinuteDate}' data-isdisabled='#{disabled}'>#{selectedHour}#{minuteNum}</li>"
 
       curMinute.add 1, 'minutes'
 
     minutesContainer.html minutesHTML
 
-    minutesContainer.find('li').bind 'click', @minuteClickHandler
+    minutesContainer.find('li').on 'click', @minuteClickHandler
 
 #########################################################################
 
@@ -163,38 +188,42 @@ class Momentous
       curHour = moment(@viewDate).hour(0).minute(0)
 
       for hour in [0..23]
-        hoursContainer = @hoursViewPeriod.find 'ul'
         hourNum = curHour.format 'h a'
         trueHour = parseInt @today.format 'H'
         curHourDate = curHour.format @dateFormat
         classes = ''
+        disabled = false
 
-        # if @dateRangeMode && @granularity == 'hours'
-        #   startDate = @controller.start.date()
-        #   endDate = @controller.end.date()
-        #   hoursFromStart = startDate.diff curHour, 'hours'
-        #   hoursFromEnd = endDate.diff curHour, 'hours'
-        #   # Apply class to start date
-        #   if hoursFromStart is 0
-        #     classes += ' startDate'
-        #   # Apply class to end date
-        #   if hoursFromEnd is 0
-        #     classes += ' endDate'
-        #   # Apply class to days within date range
-        #   if hoursFromStart < 0 and hoursFromEnd > 0
-        #     classes += ' inDateRange'
+        if @dateRangeMode
+          startDate = @controller.start.date().format('MM-DD-YYYY, HH:00')
+          endDate = @controller.end.date().format('MM-DD-YYYY, HH:00')
+          calendarDate = moment curHour
+          calendarDate = calendarDate.format 'MM-DD-YYYY, HH:00'
+          # Apply class to start date
+          if startDate == calendarDate
+            classes += ' startDate'
+          # Apply class to end date
+          if endDate == calendarDate && endDate > startDate
+            classes += ' endDate'
+          # Apply class to days within date range
+          if calendarDate > startDate and calendarDate < endDate
+            classes += ' inDateRange'
+          if calendarDate < startDate && this is @controller.end || calendarDate < @today.format('MM-DD-YYYY, HH:00')
+            classes += ' disabled'
+            disabled = true
 
         if hour is trueHour
-          classes += ' active'
-          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
+          if !@dateRangeMode
+            classes += ' active'
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}' data-isdisabled='#{disabled}'><span>#{hourNum}</span></li>"
         else
-          hoursHTML += "<li class='' data-date='#{curHourDate}'><span>#{hourNum}</span></li>"
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}' data-isdisabled='#{disabled}'><span>#{hourNum}</span></li>"
 
         curHour.add 1, 'hours'
 
       hoursContainer.html hoursHTML
 
-      hoursContainer.find('li').bind 'click', @hourClickHandler
+      hoursContainer.find('li').on 'click', @hourClickHandler
 
     # 24 hour view
     else 
@@ -213,17 +242,39 @@ class Momentous
         hourNum = curHour.format 'HH'
         trueHour = parseInt @today.format 'H'
         curHourDate = curHour.format @dateFormat
+        classes = ''
+        disabled = false
+
+        if @dateRangeMode
+          startDate = @controller.start.date().format('MM-DD-YYYY, HH:00')
+          endDate = @controller.end.date().format('MM-DD-YYYY, HH:00')
+          calendarDate = moment curHour
+          calendarDate = calendarDate.format 'MM-DD-YYYY, HH:00'
+          # Apply class to start date
+          if startDate == calendarDate
+            classes += ' startDate'
+          # Apply class to end date
+          if endDate == calendarDate && endDate > startDate
+            classes += ' endDate'
+          # Apply class to days within date range
+          if calendarDate > startDate and calendarDate < endDate
+            classes += ' inDateRange'
+          if calendarDate < startDate && this is @controller.end || calendarDate < @today.format('MM-DD-YYYY, HH:00')
+            classes += ' disabled'
+            disabled = true
 
         if hour is trueHour
-          hoursHTML += "<li class='active' data-date='#{curHourDate}'>#{hourNum}:00</li>"
+          if !@dateRangeMode
+            classes += ' active'
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}' data-isdisabled='#{disabled}'>#{hourNum}:00</li>"
         else
-          hoursHTML += "<li class='' data-date='#{curHourDate}'>#{hourNum}:00</li>"
+          hoursHTML += "<li class='#{classes}' data-date='#{curHourDate}' data-isdisabled='#{disabled}'>#{hourNum}:00</li>"
 
         curHour.add 1, 'hours'
 
       hoursContainer.html hoursHTML
 
-      hoursContainer.find('li').bind 'click', @hourClickHandler
+      hoursContainer.find('li').on 'click', @hourClickHandler
 
   showDays: =>
     @curView.hide()
@@ -251,26 +302,29 @@ class Momentous
         classes = 'day'
         if curDay.month() < month then classes += ' lastMonth'
         if curDay.month() > month then classes += ' nextMonth'
-        if curDay.format(@dateFormat) == @curDate.format(@dateFormat)
+        if curDay.format(@dateFormat) == @curDate.format(@dateFormat) && !@dateRangeMode
           classes += ' active'
           weekClasses += ' active'
 
-        if @dateRangeMode && @granularity == 'days'
-          startDate = @controller.start.date()
-          endDate = @controller.end.date()
-          daysFromStart = startDate.diff curDay, 'days'
-          daysFromEnd = endDate.diff curDay, 'days'
+        if @dateRangeMode
+          startDate = @controller.start.date().format('MM-DD-YYYY')
+          endDate = @controller.end.date().format('MM-DD-YYYY')
+          calendarDate = moment curDay
+          calendarDate = calendarDate.format 'MM-DD-YYYY'
           # Apply class to start date
-          if daysFromStart is 0
+          if startDate == calendarDate
             classes += ' startDate'
           # Apply class to end date
-          if daysFromEnd is 0
+          if endDate == calendarDate && endDate > startDate
             classes += ' endDate'
-          # Apply class to days within date range
-          if daysFromStart < 0 and daysFromEnd > 0
+          # # Apply class to days within date range
+          if calendarDate > startDate and calendarDate < endDate
             classes += ' inDateRange'
+          if calendarDate < startDate && this is @controller.end || calendarDate < @today.format('MM-DD-YYYY')
+            classes += ' disabled'
+            disabled = true
 
-        daysHTML += "<td class='#{classes}' data-date='#{curDayDate}'>#{curDay.date()}</td>"
+        daysHTML += "<td class='#{classes}' data-date='#{curDayDate}' data-isdisabled='#{disabled}'>#{curDay.date()}</td>"
 
       weekHTML = "<tr class='#{weekClasses}'>#{daysHTML}</tr>"
 
@@ -279,9 +333,9 @@ class Momentous
     daysContainer.html calHTML
 
     if @granularity == 'weeks'
-      @dropdown.find('.week').bind 'click', @weekClickHandler
+      @dropdown.find('.week').on 'click', @weekClickHandler
     else 
-      @dropdown.find('.day').bind 'click', @dayClickHandler
+      @dropdown.find('.day').on 'click', @dayClickHandler
 
   showMonths: =>
     @curView.hide()
@@ -306,7 +360,7 @@ class Momentous
 
     monthsContainer.html monthsHTML
 
-    monthsContainer.find('li').bind 'click', @monthClickHandler
+    monthsContainer.find('li').on 'click', @monthClickHandler
 
   showYears: =>
     @curView.hide()
@@ -333,32 +387,54 @@ class Momentous
 
     yearsContainer.html yearsHTML
 
-    yearsContainer.find('li').bind 'click', @yearClickHandler
+    yearsContainer.find('li').on 'click', @yearClickHandler
 
   minuteClickHandler: (event) =>
     target = $ event.currentTarget
-    @setDate target.data 'date'
-    @hide()
+    newDate = target.data 'date'
+    isDisabled = target.data 'isdisabled'
+    if isDisabled == true
+      console.log("This date is not selectable")
+    else
+      @setDate target.data 'date'
+      @hide()
 
   hourClickHandler: (event) =>
     target = $ event.currentTarget
     newDate = target.data 'date'
+    newDate = target.data 'date'
+    isDisabled = target.data 'isdisabled'
     if @granularity == 'hours'
       @setDate moment(newDate, @dateFormat)
       @hide()
     else
-      @setViewDate moment(newDate, @dateFormat)
-      @showMinutes()
+      if @dateRangeMode
+        if isDisabled == true
+          console.log("This date is not selectable")
+        else
+          @setViewDate moment(newDate, @dateFormat).minutes(0)
+          @showMinutes()
+      else
+        @setViewDate moment(newDate, @dateFormat)
+        @showMinutes()
 
   dayClickHandler: (event) =>
     target = $ event.currentTarget
     newDate = target.data 'date'
+    isDisabled = target.data 'isdisabled'
     if @granularity == 'days'
       @setDate moment(newDate, @dateFormat)
       @hide()
     else
-      @setViewDate moment(newDate, @dateFormat)
-      @showHours()
+      if @dateRangeMode
+        if isDisabled == true
+          console.log("This date is not selectable")
+        else
+          @setViewDate moment(newDate, @dateFormat).minutes(0)
+          @showHours()
+      else
+        @setViewDate moment(newDate, @dateFormat)
+        @showHours()
 
   weekClickHandler: (event) =>
     target = $ event.currentTarget
@@ -435,6 +511,7 @@ class Momentous
 
     if target.hasClass 'prev'
       @setViewDate moment(@viewDate).subtract(amount, span)
+
     if target.hasClass 'next'
       @setViewDate moment(@viewDate).add(amount, span)
 
@@ -470,6 +547,8 @@ class Momentous
 
   date: => moment @curDate
 
+  getDate: => moment @curDate
+
   jsDate: => @curDate.toDate()
 
 class DateRangeController
@@ -484,10 +563,10 @@ class DateRangeController
     @start.init()
     @end.init()
 
-    @start.events.bind 'dateChange', @startDateChangeHandler
-    @end.events.bind 'dateChange', @endDateChangeHandler
-    @start.events.bind 'showDropdown', @startShowHandler
-    @end.events.bind 'showDropdown', @endShowHandler
+    @start.events.on 'dateChange', @startDateChangeHandler
+    @end.events.on 'dateChange', @endDateChangeHandler
+    @start.events.on 'showDropdown', @startShowHandler
+    @end.events.on 'showDropdown', @endShowHandler
 
   startShowHandler: (event) =>
     @end.hide()
@@ -498,20 +577,30 @@ class DateRangeController
   startDateChangeHandler: (event) =>
     startDate = @start.date()
     endDate   = @end.date()
-    diff      = endDate.diff startDate, 'days'
+    diff      = if @granularity == 'days' then endDate.diff startDate, 'days' else endDate.diff startDate, 'hours'
 
     if diff <= 0
-      @end.setDate moment(startDate).add(1, 'weeks')
+      if @granularity == 'days'
+        @end.setDate moment(startDate).add(1, 'weeks')
+      if @granularity == 'hours'
+        @end.setDate moment(startDate).add(1, 'hours')
+      if @granularity == 'minutes'
+        @end.setDate moment(startDate).add(1, 'minutes')
 
     @end.show()
 
   endDateChangeHandler: (event) =>
     startDate = @start.date()
     endDate   = @end.date()
-    diff      = endDate.diff startDate, 'days'
+    diff      = if @granularity == 'days' then endDate.diff startDate, 'days' else endDate.diff startDate, 'hours'
 
     if diff <= 0
-      @start.setDate moment(endDate).subtract(1, 'weeks')
+      if @granularity == 'days'
+        @start.setDate moment(endDate).subtract(1, 'weeks')
+      if @granularity == 'hours'
+        @start.setDate moment(endDate).subtract(1, 'hours')
+      if @granularity == 'minutes'
+        @start.setDate moment(endDate).subtract(1, 'minutes')
 
 window.Momentous = (placeholder, options={}) ->
   if options.dateRangeMode is true

@@ -6,6 +6,7 @@
   Momentous = (function() {
     function Momentous(placeholder, options, controller) {
       this.jsDate = __bind(this.jsDate, this);
+      this.getDate = __bind(this.getDate, this);
       this.date = __bind(this.date, this);
       this.toggle = __bind(this.toggle, this);
       this.hide = __bind(this.hide, this);
@@ -49,28 +50,19 @@
         this.controller = controller;
       }
       this.placeholder.addClass('momentous-container');
-      this.input.bind('click', this.toggle);
-      this.calButton.bind('click', this.toggle);
-      this.dropdown.find('.dir-button').bind('click', this.directionClickHandler);
-      this.viewButton.bind('click', this.viewClickHandler);
+      this.input.on('click', this.toggle);
+      this.calButton.on('click', this.toggle);
+      this.dropdown.find('.dir-button').on('click', this.directionClickHandler);
+      this.viewButton.on('click', this.viewClickHandler);
     }
 
     Momentous.prototype.init = function() {
       var curDay, dayName, daysHeader, dow, weekStart, _i, _ref;
-      if (this.dateRangeMode) {
-        this.curDate = moment(moment().format(this.dateFormat), this.dateFormat);
-        this.viewDate = moment(moment().format(this.dateFormat), this.dateFormat);
-        this.today = moment(moment().format(this.dateFormat), this.dateFormat);
-      } else {
-        this.curDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
-        this.viewDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
-        this.today = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
-      }
+      this.curDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
+      this.viewDate = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
+      this.today = moment(moment().format('MM-DD-YYYY, HH:mm'), 'MM-DD-YYYY, HH:mm');
       this.weekStart = 1;
       this.granularity = 'days';
-      if (this.dateRangeMode && this === this.controller.end) {
-        this.curDate.add(1, 'weeks');
-      }
       if (this.options.date) {
         this.curDate = moment(this.options.date, this.dateFormat);
       }
@@ -79,6 +71,19 @@
       }
       if (this.options.granularity) {
         this.granularity = this.options.granularity;
+      }
+      if (this.dateRangeMode && this === this.controller.start) {
+        if (this.granularity === 'hours' || this.granularity === 'minutes') {
+          this.curDate.minutes(0);
+        }
+      }
+      if (this.dateRangeMode && this === this.controller.end) {
+        if (this.granularity === 'days') {
+          this.curDate.add(1, 'weeks');
+        }
+        if (this.granularity === 'hours' || this.granularity === 'minutes') {
+          this.curDate.add(3, 'hours').minutes(0);
+        }
       }
       this.curView.show();
       daysHeader = this.daysView.find('.dow-row');
@@ -144,7 +149,7 @@
     };
 
     Momentous.prototype.showMinutes = function() {
-      var curMinute, curMinuteDate, i, minute, minuteGran, minuteNum, minutesContainer, minutesHTML, selectedHour, _i;
+      var calendarDate, classes, curMinute, curMinuteDate, disabled, endDate, i, minute, minuteGran, minuteNum, minutesContainer, minutesHTML, selectedHour, startDate, _i;
       this.curView.hide();
       if (this.timeFormat === 12) {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, h:mm a';
@@ -167,14 +172,38 @@
         minutesContainer = this.minutesView.find('ul');
         minuteNum = curMinute.format(':mm');
         curMinuteDate = curMinute.format(this.dateFormat);
+        classes = '';
+        disabled = false;
         minuteGran = [1, 5, 10, 15, 20, 30];
         for (i in minuteGran) {
           if (minuteGran[i] === this.minuteGranularity) {
             if (minute % this.minuteGranularity === 0) {
+              if (this.dateRangeMode) {
+                startDate = this.controller.start.date().format('MM-DD-YYYY, HH:mm');
+                endDate = this.controller.end.date().format('MM-DD-YYYY, HH:mm');
+                calendarDate = moment(curMinute);
+                calendarDate = calendarDate.format('MM-DD-YYYY, HH:mm');
+                if (startDate === calendarDate) {
+                  classes += ' startDate';
+                }
+                if (endDate === calendarDate && endDate > startDate) {
+                  classes += ' endDate';
+                }
+                if (calendarDate > startDate && calendarDate < endDate) {
+                  classes += ' inDateRange';
+                }
+                if (calendarDate < startDate && this === this.controller.end || calendarDate < this.today.format('MM-DD-YYYY, HH:00')) {
+                  classes += ' disabled';
+                  disabled = true;
+                }
+              }
               if (minute === 0) {
-                minutesHTML += "<li class='active' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
+                if (!this.dateRangeMode) {
+                  classes += ' active';
+                }
+                minutesHTML += "<li class='" + classes + "' data-date='" + curMinuteDate + "' data-isdisabled='" + disabled + "'>" + selectedHour + minuteNum + "</li>";
               } else {
-                minutesHTML += "<li class='' data-date='" + curMinuteDate + "'>" + selectedHour + minuteNum + "</li>";
+                minutesHTML += "<li class='" + classes + "' data-date='" + curMinuteDate + "' data-isdisabled='" + disabled + "'>" + selectedHour + minuteNum + "</li>";
               }
             }
           }
@@ -182,11 +211,11 @@
         curMinute.add(1, 'minutes');
       }
       minutesContainer.html(minutesHTML);
-      return minutesContainer.find('li').bind('click', this.minuteClickHandler);
+      return minutesContainer.find('li').on('click', this.minuteClickHandler);
     };
 
     Momentous.prototype.showHours = function() {
-      var classes, curHour, curHourDate, hour, hourNum, hoursContainer, hoursHTML, trueHour, _i, _j;
+      var calendarDate, classes, curHour, curHourDate, disabled, endDate, hour, hourNum, hoursContainer, hoursHTML, startDate, trueHour, _i, _j;
       this.curView.hide();
       if (this.timeFormat === 12) {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, h:mm a';
@@ -197,21 +226,42 @@
         hoursHTML = '';
         curHour = moment(this.viewDate).hour(0).minute(0);
         for (hour = _i = 0; _i <= 23; hour = ++_i) {
-          hoursContainer = this.hoursViewPeriod.find('ul');
           hourNum = curHour.format('h a');
           trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
           classes = '';
+          disabled = false;
+          if (this.dateRangeMode) {
+            startDate = this.controller.start.date().format('MM-DD-YYYY, HH:00');
+            endDate = this.controller.end.date().format('MM-DD-YYYY, HH:00');
+            calendarDate = moment(curHour);
+            calendarDate = calendarDate.format('MM-DD-YYYY, HH:00');
+            if (startDate === calendarDate) {
+              classes += ' startDate';
+            }
+            if (endDate === calendarDate && endDate > startDate) {
+              classes += ' endDate';
+            }
+            if (calendarDate > startDate && calendarDate < endDate) {
+              classes += ' inDateRange';
+            }
+            if (calendarDate < startDate && this === this.controller.end || calendarDate < this.today.format('MM-DD-YYYY, HH:00')) {
+              classes += ' disabled';
+              disabled = true;
+            }
+          }
           if (hour === trueHour) {
-            classes += ' active';
-            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
+            if (!this.dateRangeMode) {
+              classes += ' active';
+            }
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "' data-isdisabled='" + disabled + "'><span>" + hourNum + "</span></li>";
           } else {
-            hoursHTML += "<li class='' data-date='" + curHourDate + "'><span>" + hourNum + "</span></li>";
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "' data-isdisabled='" + disabled + "'><span>" + hourNum + "</span></li>";
           }
           curHour.add(1, 'hours');
         }
         hoursContainer.html(hoursHTML);
-        return hoursContainer.find('li').bind('click', this.hourClickHandler);
+        return hoursContainer.find('li').on('click', this.hourClickHandler);
       } else {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, HH:00';
         this.hoursView.show();
@@ -224,15 +274,39 @@
           hourNum = curHour.format('HH');
           trueHour = parseInt(this.today.format('H'));
           curHourDate = curHour.format(this.dateFormat);
+          classes = '';
+          disabled = false;
+          if (this.dateRangeMode) {
+            startDate = this.controller.start.date().format('MM-DD-YYYY, HH:00');
+            endDate = this.controller.end.date().format('MM-DD-YYYY, HH:00');
+            calendarDate = moment(curHour);
+            calendarDate = calendarDate.format('MM-DD-YYYY, HH:00');
+            if (startDate === calendarDate) {
+              classes += ' startDate';
+            }
+            if (endDate === calendarDate && endDate > startDate) {
+              classes += ' endDate';
+            }
+            if (calendarDate > startDate && calendarDate < endDate) {
+              classes += ' inDateRange';
+            }
+            if (calendarDate < startDate && this === this.controller.end || calendarDate < this.today.format('MM-DD-YYYY, HH:00')) {
+              classes += ' disabled';
+              disabled = true;
+            }
+          }
           if (hour === trueHour) {
-            hoursHTML += "<li class='active' data-date='" + curHourDate + "'>" + hourNum + ":00</li>";
+            if (!this.dateRangeMode) {
+              classes += ' active';
+            }
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "' data-isdisabled='" + disabled + "'>" + hourNum + ":00</li>";
           } else {
-            hoursHTML += "<li class='' data-date='" + curHourDate + "'>" + hourNum + ":00</li>";
+            hoursHTML += "<li class='" + classes + "' data-date='" + curHourDate + "' data-isdisabled='" + disabled + "'>" + hourNum + ":00</li>";
           }
           curHour.add(1, 'hours');
         }
         hoursContainer.html(hoursHTML);
-        return hoursContainer.find('li').bind('click', this.hourClickHandler);
+        return hoursContainer.find('li').on('click', this.hourClickHandler);
       }
     };
 
@@ -257,7 +331,7 @@
             weekClasses = 'week';
           }
           [0, 1, 2, 3, 4, 5, 6].map(function(dow) {
-            var classes, curDay, curDayDate, daysFromEnd, daysFromStart, endDate, startDate;
+            var calendarDate, classes, curDay, curDayDate, disabled, endDate, startDate;
             curDay = moment(weekStart.day(_this.weekStart + dow).format(_this.dateFormat), _this.dateFormat);
             curDayDate = curDay.format(_this.dateFormat);
             classes = 'day';
@@ -267,26 +341,30 @@
             if (curDay.month() > month) {
               classes += ' nextMonth';
             }
-            if (curDay.format(_this.dateFormat) === _this.curDate.format(_this.dateFormat)) {
+            if (curDay.format(_this.dateFormat) === _this.curDate.format(_this.dateFormat) && !_this.dateRangeMode) {
               classes += ' active';
               weekClasses += ' active';
             }
-            if (_this.dateRangeMode && _this.granularity === 'days') {
-              startDate = _this.controller.start.date();
-              endDate = _this.controller.end.date();
-              daysFromStart = startDate.diff(curDay, 'days');
-              daysFromEnd = endDate.diff(curDay, 'days');
-              if (daysFromStart === 0) {
+            if (_this.dateRangeMode) {
+              startDate = _this.controller.start.date().format('MM-DD-YYYY');
+              endDate = _this.controller.end.date().format('MM-DD-YYYY');
+              calendarDate = moment(curDay);
+              calendarDate = calendarDate.format('MM-DD-YYYY');
+              if (startDate === calendarDate) {
                 classes += ' startDate';
               }
-              if (daysFromEnd === 0) {
+              if (endDate === calendarDate && endDate > startDate) {
                 classes += ' endDate';
               }
-              if (daysFromStart < 0 && daysFromEnd > 0) {
+              if (calendarDate > startDate && calendarDate < endDate) {
                 classes += ' inDateRange';
               }
+              if (calendarDate < startDate && _this === _this.controller.end || calendarDate < _this.today.format('MM-DD-YYYY')) {
+                classes += ' disabled';
+                disabled = true;
+              }
             }
-            return daysHTML += "<td class='" + classes + "' data-date='" + curDayDate + "'>" + (curDay.date()) + "</td>";
+            return daysHTML += "<td class='" + classes + "' data-date='" + curDayDate + "' data-isdisabled='" + disabled + "'>" + (curDay.date()) + "</td>";
           });
           weekHTML = "<tr class='" + weekClasses + "'>" + daysHTML + "</tr>";
           return calHTML += weekHTML;
@@ -294,9 +372,9 @@
       })(this));
       daysContainer.html(calHTML);
       if (this.granularity === 'weeks') {
-        return this.dropdown.find('.week').bind('click', this.weekClickHandler);
+        return this.dropdown.find('.week').on('click', this.weekClickHandler);
       } else {
-        return this.dropdown.find('.day').bind('click', this.dayClickHandler);
+        return this.dropdown.find('.day').on('click', this.dayClickHandler);
       }
     };
 
@@ -320,7 +398,7 @@
         curMonth.add(1, 'months');
       }
       monthsContainer.html(monthsHTML);
-      return monthsContainer.find('li').bind('click', this.monthClickHandler);
+      return monthsContainer.find('li').on('click', this.monthClickHandler);
     };
 
     Momentous.prototype.showYears = function() {
@@ -343,39 +421,66 @@
         curYear.add(1, 'years');
       }
       yearsContainer.html(yearsHTML);
-      return yearsContainer.find('li').bind('click', this.yearClickHandler);
+      return yearsContainer.find('li').on('click', this.yearClickHandler);
     };
 
     Momentous.prototype.minuteClickHandler = function(event) {
-      var target;
+      var isDisabled, newDate, target;
       target = $(event.currentTarget);
-      this.setDate(target.data('date'));
-      return this.hide();
+      newDate = target.data('date');
+      isDisabled = target.data('isdisabled');
+      if (isDisabled === true) {
+        return console.log("This date is not selectable");
+      } else {
+        this.setDate(target.data('date'));
+        return this.hide();
+      }
     };
 
     Momentous.prototype.hourClickHandler = function(event) {
-      var newDate, target;
+      var isDisabled, newDate, target;
       target = $(event.currentTarget);
       newDate = target.data('date');
+      newDate = target.data('date');
+      isDisabled = target.data('isdisabled');
       if (this.granularity === 'hours') {
         this.setDate(moment(newDate, this.dateFormat));
         return this.hide();
       } else {
-        this.setViewDate(moment(newDate, this.dateFormat));
-        return this.showMinutes();
+        if (this.dateRangeMode) {
+          if (isDisabled === true) {
+            return console.log("This date is not selectable");
+          } else {
+            this.setViewDate(moment(newDate, this.dateFormat).minutes(0));
+            return this.showMinutes();
+          }
+        } else {
+          this.setViewDate(moment(newDate, this.dateFormat));
+          return this.showMinutes();
+        }
       }
     };
 
     Momentous.prototype.dayClickHandler = function(event) {
-      var newDate, target;
+      var isDisabled, newDate, target;
       target = $(event.currentTarget);
       newDate = target.data('date');
+      isDisabled = target.data('isdisabled');
       if (this.granularity === 'days') {
         this.setDate(moment(newDate, this.dateFormat));
         return this.hide();
       } else {
-        this.setViewDate(moment(newDate, this.dateFormat));
-        return this.showHours();
+        if (this.dateRangeMode) {
+          if (isDisabled === true) {
+            return console.log("This date is not selectable");
+          } else {
+            this.setViewDate(moment(newDate, this.dateFormat).minutes(0));
+            return this.showHours();
+          }
+        } else {
+          this.setViewDate(moment(newDate, this.dateFormat));
+          return this.showHours();
+        }
       }
     };
 
@@ -513,6 +618,10 @@
       return moment(this.curDate);
     };
 
+    Momentous.prototype.getDate = function() {
+      return moment(this.curDate);
+    };
+
     Momentous.prototype.jsDate = function() {
       return this.curDate.toDate();
     };
@@ -535,10 +644,10 @@
       this.end = new Momentous(endDatePlaceholder, options, this);
       this.start.init();
       this.end.init();
-      this.start.events.bind('dateChange', this.startDateChangeHandler);
-      this.end.events.bind('dateChange', this.endDateChangeHandler);
-      this.start.events.bind('showDropdown', this.startShowHandler);
-      this.end.events.bind('showDropdown', this.endShowHandler);
+      this.start.events.on('dateChange', this.startDateChangeHandler);
+      this.end.events.on('dateChange', this.endDateChangeHandler);
+      this.start.events.on('showDropdown', this.startShowHandler);
+      this.end.events.on('showDropdown', this.endShowHandler);
     }
 
     DateRangeController.prototype.startShowHandler = function(event) {
@@ -553,9 +662,17 @@
       var diff, endDate, startDate;
       startDate = this.start.date();
       endDate = this.end.date();
-      diff = endDate.diff(startDate, 'days');
+      diff = this.granularity === 'days' ? endDate.diff(startDate, 'days') : endDate.diff(startDate, 'hours');
       if (diff <= 0) {
-        this.end.setDate(moment(startDate).add(1, 'weeks'));
+        if (this.granularity === 'days') {
+          this.end.setDate(moment(startDate).add(1, 'weeks'));
+        }
+        if (this.granularity === 'hours') {
+          this.end.setDate(moment(startDate).add(1, 'hours'));
+        }
+        if (this.granularity === 'minutes') {
+          this.end.setDate(moment(startDate).add(1, 'minutes'));
+        }
       }
       return this.end.show();
     };
@@ -564,9 +681,17 @@
       var diff, endDate, startDate;
       startDate = this.start.date();
       endDate = this.end.date();
-      diff = endDate.diff(startDate, 'days');
+      diff = this.granularity === 'days' ? endDate.diff(startDate, 'days') : endDate.diff(startDate, 'hours');
       if (diff <= 0) {
-        return this.start.setDate(moment(endDate).subtract(1, 'weeks'));
+        if (this.granularity === 'days') {
+          this.start.setDate(moment(endDate).subtract(1, 'weeks'));
+        }
+        if (this.granularity === 'hours') {
+          this.start.setDate(moment(endDate).subtract(1, 'hours'));
+        }
+        if (this.granularity === 'minutes') {
+          return this.start.setDate(moment(endDate).subtract(1, 'minutes'));
+        }
       }
     };
 

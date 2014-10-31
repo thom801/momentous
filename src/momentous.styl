@@ -120,6 +120,15 @@
             background: #eee
             border-radius: 0
             border-bottom: solid 1px white
+            
+          &.disabled
+            background: #fff
+            color: #bbb
+            border-radius: 0
+            cursor: default
+
+            &:hover
+              background: #fff
 
       tr.week
         border-radius: none
@@ -183,6 +192,29 @@
           &:not(.active):hover
             background: #efefef
 
+          &.startDate
+            background: #222
+            color: white
+            border-radius: 4px 0 0 4px
+
+          &.endDate
+            background: #222
+            color: white
+            border-radius: 0 4px 4px 0
+
+          &.inDateRange
+            background: #eee
+            border-radius: 0
+            
+          &.disabled
+            background: #fff
+            color: #bbb
+            border-radius: 0
+            cursor: default
+
+            &:hover
+              background: #fff
+
     .hours-view-period
       ul
         list-style: none
@@ -208,6 +240,29 @@
           &:not(.active):hover
             background: #efefef
 
+          &.startDate
+            background: #222
+            color: white
+            border-radius: 4px 0 0 4px
+
+          &.endDate
+            background: #222
+            color: white
+            border-radius: 0 4px 4px 0
+
+          &.inDateRange
+            background: #eee
+            border-radius: 0
+
+          &.disabled
+            background: #fff
+            color: #bbb
+            border-radius: 0
+            cursor: default
+
+            &:hover
+              background: #fff
+
     .minutes-view
       ul
         list-style: none
@@ -228,3 +283,26 @@
 
           &:not(.active):hover
             background: #efefef
+            
+          &.startDate
+            background: #222
+            color: white
+            border-radius: 4px 0 0 4px
+
+          &.endDate
+            background: #222
+            color: white
+            border-radius: 0 4px 4px 0
+
+          &.inDateRange
+            background: #eee
+            border-radius: 0
+
+          &.disabled
+            background: #fff
+            color: #bbb
+            border-radius: 0
+            cursor: default
+
+            &:hover
+              background: #fff
