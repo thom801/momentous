@@ -35,38 +35,16 @@ var momentous = Momentous( $('#placeholder'), options);
 ```
 
 ### Events
-To run a function when a date is selected, use:
+The momentous instance will fire a `dateChange` event whenever the user selects a date
 ```javascript
 momentous.events.on('dateChange', function(event) {
-	momentDate    = momentous.getDate();
-	formattedDate = momentous.getDate().format('dddd MMM D, YYYY h:mm a');
-	jsDate        = momentous.jsDate();
-	console.log('Date Changed:');
-	console.log(momentDate);
-	console.log('Moment.js formatted: ' + formattedDate);
-	console.log('Javascript Date: ' + jsDate);
+	curDate = momentous.getDate(); // Retrieve the current date (Moment instance)
 });
 ```
-And to do the same while in dateRangeMode, use:
+And to do the same while in date range mode
 ```javascript
-momentous.start.events.on('dateChange', function(event) {
-	momentDate    = momentous.start.getDate();
-	formattedDate = momentous.start.getDate().format('dddd MMM D, YYYY h:mm a');
-	jsDate        = momentous.start.jsDate();
-	console.log('Date Changed:');
-	console.log(momentDate);
-	console.log('Moment.js formatted: ' + formattedDate);
-	console.log('Javascript Date: ' + jsDate);
-});
-momentous.end.events.on('dateChange', function(event) {
-	momentDate    = momentous.end.getDate();
-	formattedDate = momentous.end.getDate().format('dddd MMM D, YYYY h:mm a');
-	jsDate        = momentous.end.jsDate();
-	console.log('Date Changed:');
-	console.log(momentDate);
-	console.log('Moment.js formatted: ' + formattedDate);
-	console.log('Javascript Date: ' + jsDate);
-});
+momentous.start.events.on('dateChange', function(event) { });
+momentous.end.events.on('dateChange', function(event) { });
 ```
 
 ### Development
