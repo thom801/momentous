@@ -24,10 +24,10 @@ class Momentous
 
     @placeholder.addClass 'momentous-container'
 
-    @input.bind 'click', @toggle
-    @calButton.bind 'click', @toggle
-    @dropdown.find('.dir-button').bind 'click', @directionClickHandler
-    @viewButton.bind 'click', @viewClickHandler
+    @input.on 'click', @toggle
+    @calButton.on 'click', @toggle
+    @dropdown.find('.dir-button').on 'click', @directionClickHandler
+    @viewButton.on 'click', @viewClickHandler
 
   init: =>
     # defaults
@@ -168,7 +168,7 @@ class Momentous
 
     minutesContainer.html minutesHTML
 
-    minutesContainer.find('li').bind 'click', @minuteClickHandler
+    minutesContainer.find('li').on 'click', @minuteClickHandler
 
 #########################################################################
 
@@ -223,7 +223,7 @@ class Momentous
 
       hoursContainer.html hoursHTML
 
-      hoursContainer.find('li').bind 'click', @hourClickHandler
+      hoursContainer.find('li').on 'click', @hourClickHandler
 
     # 24 hour view
     else 
@@ -274,7 +274,7 @@ class Momentous
 
       hoursContainer.html hoursHTML
 
-      hoursContainer.find('li').bind 'click', @hourClickHandler
+      hoursContainer.find('li').on 'click', @hourClickHandler
 
   showDays: =>
     @curView.hide()
@@ -333,9 +333,9 @@ class Momentous
     daysContainer.html calHTML
 
     if @granularity == 'weeks'
-      @dropdown.find('.week').bind 'click', @weekClickHandler
+      @dropdown.find('.week').on 'click', @weekClickHandler
     else 
-      @dropdown.find('.day').bind 'click', @dayClickHandler
+      @dropdown.find('.day').on 'click', @dayClickHandler
 
   showMonths: =>
     @curView.hide()
@@ -360,7 +360,7 @@ class Momentous
 
     monthsContainer.html monthsHTML
 
-    monthsContainer.find('li').bind 'click', @monthClickHandler
+    monthsContainer.find('li').on 'click', @monthClickHandler
 
   showYears: =>
     @curView.hide()
@@ -387,7 +387,7 @@ class Momentous
 
     yearsContainer.html yearsHTML
 
-    yearsContainer.find('li').bind 'click', @yearClickHandler
+    yearsContainer.find('li').on 'click', @yearClickHandler
 
   minuteClickHandler: (event) =>
     target = $ event.currentTarget
@@ -563,10 +563,10 @@ class DateRangeController
     @start.init()
     @end.init()
 
-    @start.events.bind 'dateChange', @startDateChangeHandler
-    @end.events.bind 'dateChange', @endDateChangeHandler
-    @start.events.bind 'showDropdown', @startShowHandler
-    @end.events.bind 'showDropdown', @endShowHandler
+    @start.events.on 'dateChange', @startDateChangeHandler
+    @end.events.on 'dateChange', @endDateChangeHandler
+    @start.events.on 'showDropdown', @startShowHandler
+    @end.events.on 'showDropdown', @endShowHandler
 
   startShowHandler: (event) =>
     @end.hide()

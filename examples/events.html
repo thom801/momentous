@@ -20,7 +20,7 @@
     placeholder = $('#placeholder');
     momentous = Momentous(placeholder);
 
-    momentous.events.bind('dateChange', function(event){
+    momentous.events.on('dateChange', function(event){
       momentDate    = momentous.date();
       formattedDate = momentous.date().format('dddd MMM D, YYYY');
       jsDate        = momentous.jsDate();

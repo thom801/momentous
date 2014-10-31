@@ -50,10 +50,10 @@
         this.controller = controller;
       }
       this.placeholder.addClass('momentous-container');
-      this.input.bind('click', this.toggle);
-      this.calButton.bind('click', this.toggle);
-      this.dropdown.find('.dir-button').bind('click', this.directionClickHandler);
-      this.viewButton.bind('click', this.viewClickHandler);
+      this.input.on('click', this.toggle);
+      this.calButton.on('click', this.toggle);
+      this.dropdown.find('.dir-button').on('click', this.directionClickHandler);
+      this.viewButton.on('click', this.viewClickHandler);
     }
 
     Momentous.prototype.init = function() {
@@ -211,7 +211,7 @@
         curMinute.add(1, 'minutes');
       }
       minutesContainer.html(minutesHTML);
-      return minutesContainer.find('li').bind('click', this.minuteClickHandler);
+      return minutesContainer.find('li').on('click', this.minuteClickHandler);
     };
 
     Momentous.prototype.showHours = function() {
@@ -261,7 +261,7 @@
           curHour.add(1, 'hours');
         }
         hoursContainer.html(hoursHTML);
-        return hoursContainer.find('li').bind('click', this.hourClickHandler);
+        return hoursContainer.find('li').on('click', this.hourClickHandler);
       } else {
         this.dateFormat = this.options.dateFormat || 'MM-DD-YYYY, HH:00';
         this.hoursView.show();
@@ -306,7 +306,7 @@
           curHour.add(1, 'hours');
         }
         hoursContainer.html(hoursHTML);
-        return hoursContainer.find('li').bind('click', this.hourClickHandler);
+        return hoursContainer.find('li').on('click', this.hourClickHandler);
       }
     };
 
@@ -372,9 +372,9 @@
       })(this));
       daysContainer.html(calHTML);
       if (this.granularity === 'weeks') {
-        return this.dropdown.find('.week').bind('click', this.weekClickHandler);
+        return this.dropdown.find('.week').on('click', this.weekClickHandler);
       } else {
-        return this.dropdown.find('.day').bind('click', this.dayClickHandler);
+        return this.dropdown.find('.day').on('click', this.dayClickHandler);
       }
     };
 
@@ -398,7 +398,7 @@
         curMonth.add(1, 'months');
       }
       monthsContainer.html(monthsHTML);
-      return monthsContainer.find('li').bind('click', this.monthClickHandler);
+      return monthsContainer.find('li').on('click', this.monthClickHandler);
     };
 
     Momentous.prototype.showYears = function() {
@@ -421,7 +421,7 @@
         curYear.add(1, 'years');
       }
       yearsContainer.html(yearsHTML);
-      return yearsContainer.find('li').bind('click', this.yearClickHandler);
+      return yearsContainer.find('li').on('click', this.yearClickHandler);
     };
 
     Momentous.prototype.minuteClickHandler = function(event) {
@@ -644,10 +644,10 @@
       this.end = new Momentous(endDatePlaceholder, options, this);
       this.start.init();
       this.end.init();
-      this.start.events.bind('dateChange', this.startDateChangeHandler);
-      this.end.events.bind('dateChange', this.endDateChangeHandler);
-      this.start.events.bind('showDropdown', this.startShowHandler);
-      this.end.events.bind('showDropdown', this.endShowHandler);
+      this.start.events.on('dateChange', this.startDateChangeHandler);
+      this.end.events.on('dateChange', this.endDateChangeHandler);
+      this.start.events.on('showDropdown', this.startShowHandler);
+      this.end.events.on('showDropdown', this.endShowHandler);
     }
 
     DateRangeController.prototype.startShowHandler = function(event) {
